@@ -46,14 +46,30 @@ class main:
             inst    = reader_obj.get_next_instance()
         reader_obj.disconnect()
 
+    def doc_ft_vector(self, reader_obj, ft_vector=None, vt=None):
+        '''
+            Launch readers to get each document's
+            feature vector.
+        '''
+        reader_obj.connect()
+        inst    = reader_obj.get_next_instance()
+        while inst != None:
+            self.add_to_vector(inst[2], ft_vector, vt)
+            inst    = reader_obj.get_next_instance()
+        reader_obj.disconnect()
+
     def run_cluster(self):
         ft_vector_dict  = defaultdict(int)
         stem_words      = defaultdict(list)
         self.launch_readers(self.init_ft_vector, ft_vector_dict, stem_words)
         fp  = open(os.path.join(PROJECT_PATH, SRC_DIR, FT_VECTOR), 'w')
         for key in ft_vector_dict.keys():
-            fp.write(key + ' ' + str(ft_vector_dict[key]) + '\n')
+            if ft_vector_dict[key]>1:
+                fp.write(key + ' ' + str(ft_vector_dict[key]) + '\n')
+            else:
+                del(ft_vector_dict[key])
         fp.close()
+        print len(ft_vector_dict)
 
         fp  = open(os.path.join(PROJECT_PATH, SRC_DIR, STEM_LIST), 'w')
         for key in stem_words.keys():
