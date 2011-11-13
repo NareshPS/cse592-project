@@ -5,15 +5,16 @@ import sys
 
 class webscraper:
     def extractcomics(self):
-        soup    = BeautifulSoup(sys.stdin.read()
+        soup    = BeautifulSoup(sys.stdin.read())
         results = soup.findAll('tr')
 
         for result in results:
+            if str(result) == '<tr><td>&nbsp;</td></tr>':
+                continue
             atag    = result.first('a', attrs={'class' : 'searchlink'})
-            print atag['href']
             print atag['title']
-
             print result.first('td', attrs={'align' : 'left'}).contents[0]
+            print atag['href']
 
 
 if __name__ == '__main__':
