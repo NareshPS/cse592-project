@@ -21,6 +21,3 @@ class cnh_reader:
     def disconnect(self):
         if self.dataP is not None:
             self.dataP.close()
-
-
-    
