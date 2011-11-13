@@ -12,6 +12,8 @@ class webscraper:
             if str(result) == '<tr><td>&nbsp;</td></tr>':
                 continue
             atag    = result.first('a', attrs={'class' : 'searchlink'})
+            if atag is None:
+                continue
             print atag['title']
             print result.first('td', attrs={'align' : 'left'}).contents[0]
             print atag['href']
