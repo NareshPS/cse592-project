@@ -24,9 +24,10 @@ def launch_readers():
         Reads various comics.
     '''
     print 'Launching Readers.'
-    for key in COMIC_READERS.keys():
-        object  = globals()[key]
-        reader_start(getattr(object,key)(COMIC_READERS[key]))
+    for tup in COMIC_READERS:
+        object  = globals()[tup[0]]
+        print 'Processing: ' + tup[0] + " Value: " + tup[1]
+        reader_start(getattr(object,tup[0])(tup[1]))
 
 def reader_start(reader_obj):
     '''
