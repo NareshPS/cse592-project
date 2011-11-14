@@ -9,6 +9,7 @@ from config.siteconfig import *
 import PorterStemmer
 import stopwords
 import matrixops
+import dendrogram
 
 class main:
     def __init__(self):
@@ -86,6 +87,7 @@ class main:
                 fp.write(key + ' ' + str(self.stem_words[key]) + '\n')
             fp.close()
         else:
+            print 'Reading: ' + ft_path
             fp  = open(ft_path, 'r')
             self.ft_vector_dict = pickle.load(fp)
             fp.close()
@@ -100,9 +102,16 @@ class main:
             pickle.dump(self.inst_vectors, inst_fp)
             inst_fp.close()
         else:
+            print 'Reading: ' + inst_file
             inst_fp = open(inst_file, 'r')
             self.inst_vectors   = pickle.load(inst_fp)
             inst_fp.close()
+
+        '''
+            Make Dendrogram.
+        '''
+        d   = dendrogram.dendrogram(self.ft_vector_dict, self.inst_vectors)
+        d.maketree()
         
 if __name__ == '__main__':
     if os.path.join(PROJECT_PATH, SRC_DIR) != os.getcwd():
