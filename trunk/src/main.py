@@ -1,16 +1,22 @@
 #! /usr/bin/python
 
 import os, sys
+from collections import defaultdict
+import pickle
+
 from comicreader import *
 from config.siteconfig import *
-from collections import defaultdict
 import PorterStemmer
 import stopwords
+import matrixops
 
 class main:
     def __init__(self):
+        self.ft_vector_dict = defaultdict(int)
+        self.stem_words     = defaultdict(list)
         self.ps = PorterStemmer.PorterStemmer()
         self.st = stopwords.stopwords()
+        self.inst_vectors   = {}
 
     def add_to_vector(self, text, ft_vector=None, vt=None):
         for part in text.split():
@@ -54,27 +60,49 @@ class main:
         reader_obj.connect()
         inst    = reader_obj.get_next_instance()
         while inst != None:
-            self.add_to_vector(inst[2], ft_vector, vt)
+            inst_vector = defaultdict(int)
+            self.add_to_vector(inst[2], inst_vector, None)
+            self.inst_vectors[inst[1]]  = (inst_vector, len(inst[2].split())) 
             inst    = reader_obj.get_next_instance()
         reader_obj.disconnect()
 
     def run_cluster(self):
-        ft_vector_dict  = defaultdict(int)
-        stem_words      = defaultdict(list)
-        self.launch_readers(self.init_ft_vector, ft_vector_dict, stem_words)
-        fp  = open(os.path.join(PROJECT_PATH, SRC_DIR, FT_VECTOR), 'w')
-        for key in ft_vector_dict.keys():
-            if ft_vector_dict[key]>1:
-                fp.write(key + ' ' + str(ft_vector_dict[key]) + '\n')
-            else:
-                del(ft_vector_dict[key])
-        fp.close()
-        print len(ft_vector_dict)
+        '''
+            Compute the main Feature Vector.
+        '''
+        ft_path     = os.path.join(PROJECT_PATH, SRC_DIR, FT_VECTOR)
+        st_path     = os.path.join(PROJECT_PATH, SRC_DIR, STEM_LIST)
+        if os.path.exists(ft_path) is False:
+            self.launch_readers(self.init_ft_vector, self.ft_vector_dict, self.stem_words)
+            fp  = open(ft_path, 'w')
+            for key in self.ft_vector_dict.keys():
+                if self.ft_vector_dict[key]<=1:
+                    del(self.ft_vector_dict[key])
+            pickle.dump(self.ft_vector_dict, fp)
+            fp.close()
 
-        fp  = open(os.path.join(PROJECT_PATH, SRC_DIR, STEM_LIST), 'w')
-        for key in stem_words.keys():
-            fp.write(key + ' ' + str(stem_words[key]) + '\n')
-        fp.close()
+            fp  = open(st_path, 'w')
+            for key in self.stem_words.keys():
+                fp.write(key + ' ' + str(self.stem_words[key]) + '\n')
+            fp.close()
+        else:
+            fp  = open(ft_path, 'r')
+            self.ft_vector_dict = pickle.load(fp)
+            fp.close()
+
+        '''
+            Compute individual documents feature vector.
+        '''
+        inst_file   = os.path.join(PROJECT_PATH, SRC_DIR, INST_VECTORS)
+        if os.path.exists(inst_file) is False:
+            inst_fp = open(inst_file, 'w')
+            self.launch_readers(self.doc_ft_vector)
+            pickle.dump(self.inst_vectors, inst_fp)
+            inst_fp.close()
+        else:
+            inst_fp = open(inst_file, 'r')
+            self.inst_vectors   = pickle.load(inst_fp)
+            inst_fp.close()
         
 if __name__ == '__main__':
     if os.path.join(PROJECT_PATH, SRC_DIR) != os.getcwd():
