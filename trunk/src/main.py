@@ -87,10 +87,11 @@ class main:
                 fp.write(key + ' ' + str(self.stem_words[key]) + '\n')
             fp.close()
         else:
-            print 'Reading: ' + ft_path
+            print 'Loading: ' + ft_path
             fp  = open(ft_path, 'r')
             self.ft_vector_dict = pickle.load(fp)
             fp.close()
+            print 'Loaded: ' + ft_path
 
         '''
             Compute individual documents feature vector.
@@ -102,10 +103,11 @@ class main:
             pickle.dump(self.inst_vectors, inst_fp)
             inst_fp.close()
         else:
-            print 'Reading: ' + inst_file
+            print 'Loading: ' + inst_file
             inst_fp = open(inst_file, 'r')
             self.inst_vectors   = pickle.load(inst_fp)
             inst_fp.close()
+            print 'Loaded: ' + inst_file
 
         '''
             Make Dendrogram.
