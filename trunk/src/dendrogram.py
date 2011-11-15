@@ -17,18 +17,15 @@ class dendrogram:
         inst_keys   = self.inst_vectors.keys()
         len_keys    = len(inst_keys)
         for inst in inst_keys[:len_keys-1]:
-            print 'Processing ' + inst
             for ainst in inst_keys[inst_keys.index(inst)+1:len_keys]:
                 Y.append(matrixops.matrixops.euclideandistance(self.inst_vectors[inst][0], self.inst_vectors[ainst][0]))
-        print len(Y)
 
-        #self.plot(Y)
+        self.plot(Y)
   
     def plot(self, Y):
         Z   = hierarchy.linkage( Y )
         hierarchy.dendrogram(Z)
         show()
-
 
 if __name__ == '__main__':
     X = [[1.0],[1.0],[2.0],[4.0],[9.0]]
