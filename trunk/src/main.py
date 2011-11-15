@@ -48,9 +48,11 @@ class main:
         '''
         reader_obj.connect()
         inst    = reader_obj.get_next_instance()
-        while inst != None:
+        count   = 1
+        while inst != None and count != 500:
             self.add_to_vector(inst[2], ft_vector, vt)
             inst    = reader_obj.get_next_instance()
+            count   = count + 1
         reader_obj.disconnect()
 
     def doc_ft_vector(self, reader_obj, ft_vector=None, vt=None):
@@ -60,11 +62,13 @@ class main:
         '''
         reader_obj.connect()
         inst    = reader_obj.get_next_instance()
-        while inst != None:
+        count   = 1
+        while inst != None and count != 500:
             inst_vector = defaultdict(int)
             self.add_to_vector(inst[2], inst_vector, None)
             self.inst_vectors[inst[1]]  = (inst_vector, len(inst[2].split())) 
             inst    = reader_obj.get_next_instance()
+            count   = count + 1
         reader_obj.disconnect()
 
     def run_cluster(self):

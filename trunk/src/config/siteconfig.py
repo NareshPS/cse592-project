@@ -10,6 +10,7 @@ STOP_WORDS      = "stop.txt"
 STEM_LIST       = "stem.txt"
 FT_FIN_VECTOR   = 'ft_final_vector.txt'
 INST_VECTORS    = 'inst_vectors.txt'
+DIST_VECTORS    = 'dist_vectors.txt'
 
 COMIC_READERS   = [
     ('xkcd_reader', os.path.join(PROJECT_PATH, DATA_DIR, 'xkcd_comic_list.txt')),
