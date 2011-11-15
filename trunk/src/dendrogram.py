@@ -7,6 +7,7 @@ from numpy.random import rand
 import math
 import copy
 from config.siteconfig import *
+import pickle
 
 class dendrogram:
     def __init__(self, ft_vector, inst_vectors):
@@ -20,21 +21,18 @@ class dendrogram:
             Y   = []
             inst_keys   = self.inst_vectors.keys()
             len_keys    = len(inst_keys)
-            count   = 1
             for inst in inst_keys[:len_keys-1]:
-                print count, ',',
                 for ainst in inst_keys[inst_keys.index(inst)+1:len_keys]:
                     inst_v  = copy.deepcopy(self.inst_vectors[inst][0])
                     ainst_v = copy.deepcopy(self.inst_vectors[ainst][0])
                     Y.append(math.sqrt(sum((inst_v[x]-ainst_v[x])*(inst_v[x]-ainst_v[x]) for x in set(inst_v.keys()+ainst_v.keys()))))
-                count   = count + 1
             fp  = open(dist_vc_path, 'w')
             pickle.dump(Y, fp)
             fp.close()
         else:
             print 'Loading: ' + dist_vc_path 
             fp  = open(dist_vc_path, 'r')
-            Y   = pickle.load(dist_vc_path)
+            Y   = pickle.load(fp)
             fp.close()
             print 'Loaded: ' + dist_vc_path 
 
