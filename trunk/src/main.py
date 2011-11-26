@@ -116,8 +116,9 @@ class main:
         '''
             Make Dendrogram.
         '''
-        d   = dendrogram.dendrogram(self.ft_vector_dict, self.inst_vectors)
-        d.maketree()
+        d   = dendrogram.dendrogram(self.ft_vector_dict)
+        #d.maketree(self.inst_vectors)
+        d.test_dist(self.inst_vectors)
         
 if __name__ == '__main__':
     if os.path.join(PROJECT_PATH, SRC_DIR) != os.getcwd():
