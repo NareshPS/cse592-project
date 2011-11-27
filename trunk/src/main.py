@@ -3,6 +3,7 @@
 import os, sys
 from collections import defaultdict
 import pickle
+import math
 
 from comicreader import *
 from config.siteconfig import *
@@ -18,14 +19,27 @@ class main:
         self.ps = PorterStemmer.PorterStemmer()
         self.st = stopwords.stopwords()
         self.inst_vectors   = {}
+        self.df=defaultdict(int)
+        self.is_corpus_ft_vec=1
+        self.total_doc_count=0
 
     def add_to_vector(self, text, ft_vector=None, vt=None):
+        word_appear=defaultdict(int)
+        if self.is_corpus_ft_vec==1:
+            self.total_doc_count=self.total_doc_count+1
         for part in text.split():
             strip_part  = part.strip()
             st_word     = self.ps.stem(strip_part, 0, len(strip_part)-1)
             if self.st.isstopword(strip_part) is False and self.st.isstopword(st_word) is False and (len(st_word)>2) is True:
                 if ft_vector is not None:
-                   ft_vector[st_word]   = ft_vector[st_word]+1
+                   if self.is_corpus_ft_vec==1:
+                       ft_vector[st_word]   = ft_vector[st_word]+1
+                       if(word_appear[st_word]==0):
+                           self.df[st_word]=self.df[st_word]+1
+                           word_appear[st_word]=1
+                   else:
+                       if(self.ft_vector_dict.has_key(st_word)):
+                           ft_vector[st_word]   = ft_vector[st_word]+1
                 if vt is not None:
                     try:
                         idx     = vt[st_word].index(strip_part)
@@ -41,6 +55,9 @@ class main:
             object  = globals()[tup[0]]
             print 'Processing: ' + tup[0] + " Value: " + tup[1]
             callback(getattr(object,tup[0])(tup[1]), ft_vector, vt)
+            print 'Printing Features; '
+            if(self.is_corpus_ft_vec==0):
+                print ft_vector
 
     def init_ft_vector(self, reader_obj, ft_vector=None, vt=None):
         '''
@@ -64,9 +81,12 @@ class main:
         inst    = reader_obj.get_next_instance()
         count   = 1
         while inst != None and count != 500:
-            inst_vector = defaultdict(int)
+            inst_vector = defaultdict(float)
             self.add_to_vector(inst[2], inst_vector, None)
-            self.inst_vectors[inst[1]]  = (inst_vector, len(inst[2].split())) 
+            self.inst_vectors[inst[1]]  = (inst_vector, len(inst[2].split()))
+            for key in inst_vector.keys():
+                print self.total_doc_count, self.df[key]
+                inst_vector[key]=inst_vector[key]*(math.log(self.total_doc_count)-math.log(self.df[key]))
             inst    = reader_obj.get_next_instance()
             count   = count + 1
         reader_obj.disconnect()
@@ -75,13 +95,25 @@ class main:
         '''
             Compute the main Feature Vector.
         '''
+        self.is_corpus_ft_vec=1
         ft_path     = os.path.join(PROJECT_PATH, SRC_DIR, FT_VECTOR)
         st_path     = os.path.join(PROJECT_PATH, SRC_DIR, STEM_LIST)
         if os.path.exists(ft_path) is False:
             self.launch_readers(self.init_ft_vector, self.ft_vector_dict, self.stem_words)
             fp  = open(ft_path, 'w')
+            #remove all words whose frequency lies beyond mean+-std_dev
+            mean=0.0
             for key in self.ft_vector_dict.keys():
-                if self.ft_vector_dict[key]<=1:
+                mean+=self.ft_vector_dict[key]
+            mean=mean/len(self.ft_vector_dict)
+            var=0.0
+            for key in self.ft_vector_dict.keys():
+                var+=pow((self.ft_vector_dict[key]-mean),2.0)
+            std_dev=math.sqrt(var*1.0/len(self.ft_vector_dict))
+            int_left_lim=int(mean-std_dev)
+            int_right_lim=int(mean+std_dev)
+            for key in self.ft_vector_dict.keys():
+                if self.ft_vector_dict[key]<int_left_lim or self.ft_vector_dict[key]>int_right_lim:
                     del(self.ft_vector_dict[key])
             pickle.dump(self.ft_vector_dict, fp)
             fp.close()
@@ -97,6 +129,8 @@ class main:
             fp.close()
             print 'Loaded: ' + ft_path
 
+        self.is_corpus_ft_vec=0
+        print self.total_doc_count
         '''
             Compute individual documents feature vector.
         '''
