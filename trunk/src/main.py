@@ -4,14 +4,14 @@ import os, sys
 from collections import defaultdict
 import pickle
 import math
-
+from scipy import array,dot,mat
 from comicreader import *
 from config.siteconfig import *
 import PorterStemmer
 import stopwords
 import matrixops
 import dendrogram
-
+from lsa import LSA
 class main:
     def __init__(self):
         self.ft_vector_dict = defaultdict(int)
@@ -22,6 +22,7 @@ class main:
         self.df=defaultdict(int)
         self.is_corpus_ft_vec=1
         self.total_doc_count=0
+        self.ft_inst_matrix = []
 
     def add_to_vector(self, text, ft_vector=None, vt=None):
         word_appear=defaultdict(int)
@@ -84,9 +85,6 @@ class main:
             inst_vector = defaultdict(float)
             self.add_to_vector(inst[2], inst_vector, None)
             self.inst_vectors[inst[1]]  = (inst_vector, len(inst[2].split()))
-            for key in inst_vector.keys():
-                print self.total_doc_count, self.df[key]
-                inst_vector[key]=inst_vector[key]*(math.log(self.total_doc_count)-math.log(self.df[key]))
             inst    = reader_obj.get_next_instance()
             count   = count + 1
         reader_obj.disconnect()
@@ -101,20 +99,22 @@ class main:
         if os.path.exists(ft_path) is False:
             self.launch_readers(self.init_ft_vector, self.ft_vector_dict, self.stem_words)
             fp  = open(ft_path, 'w')
+            
             #remove all words whose frequency lies beyond mean+-std_dev
-            mean=0.0
-            for key in self.ft_vector_dict.keys():
-                mean+=self.ft_vector_dict[key]
-            mean=mean/len(self.ft_vector_dict)
-            var=0.0
-            for key in self.ft_vector_dict.keys():
-                var+=pow((self.ft_vector_dict[key]-mean),2.0)
-            std_dev=math.sqrt(var*1.0/len(self.ft_vector_dict))
-            int_left_lim=int(mean-std_dev)
-            int_right_lim=int(mean+std_dev)
-            for key in self.ft_vector_dict.keys():
-                if self.ft_vector_dict[key]<int_left_lim or self.ft_vector_dict[key]>int_right_lim:
-                    del(self.ft_vector_dict[key])
+            
+          #  mean=0.0
+          #  for key in self.ft_vector_dict.keys():
+          #      mean+=self.ft_vector_dict[key]
+          #  mean=mean/len(self.ft_vector_dict)
+          #  var=0.0
+          #  for key in self.ft_vector_dict.keys():
+          #      var+=pow((self.ft_vector_dict[key]-mean),2.0)
+          #  std_dev=math.sqrt(var*1.0/len(self.ft_vector_dict))
+          #  int_left_lim=int(mean-std_dev)
+          #  int_right_lim=int(mean+std_dev)
+          #  for key in self.ft_vector_dict.keys():
+          #      if self.ft_vector_dict[key]<int_left_lim or self.ft_vector_dict[key]>int_right_lim:
+          #          del(self.ft_vector_dict[key])
             pickle.dump(self.ft_vector_dict, fp)
             fp.close()
 
@@ -150,9 +150,26 @@ class main:
         '''
             Make Dendrogram.
         '''
-        d   = dendrogram.dendrogram(self.ft_vector_dict)
+        print len(self.ft_vector_dict.keys())
+        #print self.inst_vectors
+        word_list = self.ft_vector_dict.keys()
+        for inst_words,count in self.inst_vectors.values():
+            i = 0
+            matrix = [0]*len(self.ft_vector_dict.keys())
+            for ft_words in word_list:
+                if (inst_words.has_key(ft_words)):
+                    matrix[i] = inst_words[ft_words]
+                else: 
+                    matrix[i] = 0
+                i= i+1 
+            #print matrix    
+            self.ft_inst_matrix.append(matrix) 
+        temp = array(self.ft_inst_matrix)
+        print temp.shape
+        #print self.inst_vectors 
+        #d   = dendrogram.dendrogram(self.ft_vector_dict)
         #d.maketree(self.inst_vectors)
-        d.test_dist(self.inst_vectors)
+        #d.test_dist(self.inst_vectors)
         
 if __name__ == '__main__':
     if os.path.join(PROJECT_PATH, SRC_DIR) != os.getcwd():
@@ -160,3 +177,7 @@ if __name__ == '__main__':
     else:
         m   = main()
         m.run_cluster()
+        lsa_mat = LSA(m.ft_inst_matrix)
+        lsa_mat.tfidfTransform()
+        lsa_mat.lsaTransform(500)
+        print lsa_mat.matrix.shape        
