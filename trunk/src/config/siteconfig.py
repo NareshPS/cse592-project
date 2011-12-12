@@ -2,7 +2,8 @@ import os
 from comicreader import xkcd_reader
 from comicreader import cnh_reader
 
-PROJECT_PATH    = '/home/nehal/fall_2011/Ml_Learning/cse592-project/trunk/'
+PROJECT_PATH    = '/home/naresh/cse592-project/trunk/'
+#PROJECT_PATH    = '/home/chandu/courses/fall2011/ml/prj/cse592-project/trunk/'
 DATA_DIR        = 'comics'
 SRC_DIR         = 'src'
 FT_VECTOR       = 'ft_vector.txt'
