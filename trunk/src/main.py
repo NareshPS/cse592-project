@@ -182,7 +182,28 @@ class main:
       var += pow(v[0]-mean, 2.0)
    
     std   = math.sqrt(var/len(ft))
-    print mean, std 
+
+    g = {}
+    for k,v in ft.items():
+      if g.has_key(v[0]):
+        g [v[0]]  += 1
+      else:
+        g [v[0]]  = 1
+
+    f_mean  = 0.0
+    for k,v in g.items():
+      f_mean  += v
+    f_mean  = f_mean/len(g)
+
+    f_var   = 0.0
+    for k,v in g.items():
+      f_var += pow(v-f_mean, 2.0)
+
+    f_std   = math.sqrt(f_var/len(g))
+    for k,v in g.items():
+      if (v >= (f_mean-f_std)) and (v <= (f_mean+f_std)):
+        print k,v
+    print f_mean, f_std
     '''
     int_left_lim=int(mean-std_dev)
     int_right_lim=int(mean+std_dev)
