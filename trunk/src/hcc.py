@@ -41,21 +41,19 @@ class hcc:
     idf = log(float(self.v_ft [1])/tf)
     return tf*idf
 
-  def average(self, m):
-    '''
-      Calculates average value for computing
-      cluster homogeniety. This is the
-      average of all the relevant values in matrix X.
-    '''
-    pass
-
   def compute_ch(self, m):
     '''
       In this function we compute cluster homogeniety.
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
         mu    = Avg(x[i,j])
     '''
-    mu  = sum(m[0]+m[1])/(len(m[0])+len(m[1]))
+    print m
+    xs  = None
+    [self.tfidf(x,y) for x in m[0] for y in m[1]]
+    mu  = sum(xs)/float(len(xs))
+    print xs, mu
+    return 1.0
+    #return ((1.0/float(len(m[0])*len(m[1])))*float(sum(pow((),2.0))))
 
 
   def pickup_two_nodes(self, m):
@@ -64,8 +62,7 @@ class hcc:
     '''
     max_1 = -1.0
     max_2 = -2.0
-    max_1, max_2  = [self.compute(i) for i in m]
-
+    max_1, max_2  = [self.compute_ch(i) for i in m]
 
   def merge(self, p, q):
     '''
@@ -108,8 +105,8 @@ class hcc:
     for i in range(0,N):
       m     = copy(l)
       l     = m
-      p, q  = pickup_two_nodes(m)
-      o     = merge(p, q)
+      p, q  = self.pickup_two_nodes(m)
+      o     = self.merge(p, q)
       del m[p]
       del m[q]
       cluster.append(m)
