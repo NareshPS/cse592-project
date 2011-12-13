@@ -36,12 +36,11 @@ class main:
     for part in text.split():
       #Remove leading or trailing spaces and new lines.
       strip_part  = part.strip()
-      if self.st.isstopword(strip_part) is False:
+      #Skip if the word is a stop word.
+      #Skip if the word is not alpha.
+      if self.st.isstopword(strip_part) is False and strip_part.isalpha() is True:
         #Stems the word.
         st_word   = self.ps.stem(strip_part, 0, len(strip_part)-1)
-        #Ignore words with 2 characters or less.
-        if len(st_word)<2:
-          continue
 
         #Put stem and word in v_st vector.
         if v_st.has_key(st_word):
@@ -174,67 +173,11 @@ class main:
     mean  = 0.0
     ft    = v_ft [0]
     for k,v in ft.items():
-      mean  += v[0]
-    mean  = mean/len(ft)
-
-    var   = 0.0
+      if v[0] <= 2:
+        del ft[k]
+    
     for k,v in ft.items():
-      var += pow(v[0]-mean, 2.0)
-   
-    std   = math.sqrt(var/len(ft))
-
-    g = {}
-    for k,v in ft.items():
-      if g.has_key(v[0]):
-        g [v[0]]  += 1
-      else:
-        g [v[0]]  = 1
-
-    f_mean  = 0.0
-    for k,v in g.items():
-      f_mean  += v
-    f_mean  = f_mean/len(g)
-
-    f_var   = 0.0
-    for k,v in g.items():
-      f_var += pow(v-f_mean, 2.0)
-
-    f_std   = math.sqrt(f_var/len(g))
-    for k,v in g.items():
-      if (v >= (f_mean-f_std)) and (v <= (f_mean+f_std)):
-        print k,v
-    print f_mean, f_std
-    '''
-    int_left_lim=int(mean-std_dev)
-    int_right_lim=int(mean+std_dev)
-    for key in self.ft_vector_dict.keys():
-      if self.ft_vector_dict[key]<int_left_lim or self.ft_vector_dict[key]>int_right_lim:
-        del(self.ft_vector_dict[key])
-    '''
-    '''
-      Nehal's Changes.
-        print len(self.ft_vector_dict.keys())
-        #print self.inst_vectors
-        word_list = self.ft_vector_dict.keys()
-        for inst_words,count in self.inst_vectors.values():
-            i = 0
-            matrix = [0]*len(self.ft_vector_dict.keys())
-            for ft_words in word_list:
-                if (inst_words.has_key(ft_words)):
-                    matrix[i] = inst_words[ft_words]
-                else: 
-                    matrix[i] = 0
-                i= i+1 
-            #print matrix    
-            self.ft_inst_matrix.append(matrix) 
-        temp = array(self.ft_inst_matrix)
-        print temp.shape
-        lsa_mat = LSA(m.ft_inst_matrix)
-        lsa_mat.tfidfTransform()
-        lsa_mat.lsaTransform(500)
-        print lsa_mat.matrix.shape        
-    '''
-
+      print k,v[0]
 
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
