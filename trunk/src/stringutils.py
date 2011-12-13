@@ -8,7 +8,7 @@ class stringutils:
     It uses python's maketrans function to translate
     unwanted characters to spaces.
   '''
-  trans   = string.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ[]{}\n\t.":\'?!,$@', 'abcdefghijklmnopqrstuvwxyz         ')
+  trans   = string.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ[]{}\n\t.":\'?!,$@', 'abcdefghijklmnopqrstuvwxyz               ')
   @staticmethod
   def cleanstr(dirtystr):
     '''
