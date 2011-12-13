@@ -1,4 +1,5 @@
 from math import log
+from copy import copy
 
 class hcc:
   '''
@@ -40,6 +41,42 @@ class hcc:
     idf = log(float(self.v_ft [1])/tf)
     return tf*idf
 
+  def average(self, m):
+    '''
+      Calculates average value for computing
+      cluster homogeniety. This is the
+      average of all the relevant values in matrix X.
+    '''
+    pass
+
+  def compute_ch(self, m):
+    '''
+      In this function we compute cluster homogeniety.
+        CH(C) = (1/mn)*sum(square(x[i,j] - mu))
+        mu    = Avg(x[i,j])
+    '''
+    mu  = sum(m[0]+m[1])/(len(m[0])+len(m[1]))
+
+
+  def pickup_two_nodes(self, m):
+    '''
+      Pickup two nodes with highest value of CH.
+    '''
+    max_1 = -1.0
+    max_2 = -2.0
+    max_1, max_2  = [self.compute(i) for i in m]
+
+
+  def merge(self, p, q):
+    '''
+      This function returns the merged cluster
+      of p and q.
+      For merging, it merges the two components separately
+      The two components being, document part of cluster and
+      term part of cluster.
+    '''
+    return (p[0]+q[0], p[1]+q[1])
+
   def hcc_cluster(self):
     '''
       This function runs the clustering algorithm. The algorithm
@@ -47,8 +84,8 @@ class hcc:
       Algorithm 1 HCC Algorithm Description
       -------------------------------------
       Create an empty hierarchy H
-      List <-- Objects in A + Objects in B
-      N <-- size[A] + size[B]
+      List <- Objects in A + Objects in B
+      N <- size[A] + size[B]
       Add List to H as the bottom layer
       for i = 0 to N - 1 do
         p, q = PickUpTwoNodes(List)
@@ -63,10 +100,17 @@ class hcc:
     v_in  = self.v_in
     #Create bottom layer of the cluster.
     #Bottom layer contains all the words and documents.
-    l       = v_ft [0].keys()
+    l       = [([x],[]) for x in v_ft [0]]
     l.append('')
-    l[-1:]  = v_in.keys() 
+    l[-1:]  = [([],[x]) for x in v_in]
     N       = len(l)
     cluster = [l]
-    
-     
+    for i in range(0,N):
+      m     = copy(l)
+      l     = m
+      p, q  = pickup_two_nodes(m)
+      o     = merge(p, q)
+      del m[p]
+      del m[q]
+      cluster.append(m)
+    print cluster
