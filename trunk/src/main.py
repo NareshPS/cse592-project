@@ -7,6 +7,7 @@ from config.siteconfig import *
 from save_object import save_object
 from PorterStemmer import PorterStemmer
 from stopwords import stopwords
+from hcc import hcc
 
 class main:
   def __init__(self):
@@ -188,6 +189,10 @@ class main:
     #Prints the feature vector.
     for k,v in v_ft [0].items():
       print k,v[0]
+
+    #Do the clustering. Use hcc class for that.
+    c   = hcc(v_ft, v_in)
+    c.hcc_cluster()
 
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
