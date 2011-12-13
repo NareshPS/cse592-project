@@ -43,7 +43,7 @@ class hcc:
 
   def compute_ch(self, m):
     '''
-      In this function we compute cluster homogeniety.
+      In this function we compute cluster heterogeneity.
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
         mu    = Avg(x[i,j])
     '''
