@@ -41,6 +41,9 @@ class main:
       if self.st.isstopword(strip_part) is False and strip_part.isalpha() is True:
         #Stems the word.
         st_word   = self.ps.stem(strip_part, 0, len(strip_part)-1)
+        #Ignore words with 2 characters or less.
+        if len(st_word)<2:
+          continue
 
         #Put stem and word in v_st vector.
         if v_st.has_key(st_word):
@@ -166,17 +169,24 @@ class main:
       almost all the differnt words in the corpus.
       However, we would like to reduce it to make
       computation simpler and faster.
-      So, we compute mean and standard deviation of the
-      word frequencies and remove words
-      having frequency beyond mean+-std_dev
+      So, we remove the words having frequency less than
+      or equal to 2. This reduces the Feature Vector 
+      by almost a factor of 1/2. We remove these words
+      from both the corpus-wide feature vector and
+      the document specific feature vector.
     '''
-    mean  = 0.0
     ft    = v_ft [0]
     for k,v in ft.items():
       if v[0] <= 2:
         del ft[k]
-    
-    for k,v in ft.items():
+
+    for k,v in v_in.items():
+      for k1,v1 in v.items():
+        if ft.has_key(k1) is False:
+          del v[k1]
+   
+    #Prints the feature vector.
+    for k,v in v_ft [0].items():
       print k,v[0]
 
 if __name__ == '__main__':
