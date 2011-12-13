@@ -58,12 +58,9 @@ class hcc:
 
   def pickup_two_nodes(self, m):
     '''
-      Pickup two nodes with highest value of CH.
+      Pickup two nodes with minimum value of CH.
     '''
-    max_1 = -1.0
-    max_2 = -2.0
-    max_1, max_2  = [self.compute_ch(i) for i in m]
-
+     
   def merge(self, p, q):
     '''
       This function returns the merged cluster
