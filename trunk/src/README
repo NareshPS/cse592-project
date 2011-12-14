@@ -1,0 +1,41 @@
+Hierarchial Co-clustering of Web-Comics
+-----------------------------------------
+Machine Learning Final Project.
+
+Group Members:
+--------------
+Chandra Shekhar M.
+Naresh Singh
+Nehal Bandi
+
+Code Setup
+----------
+To run the code:
+$ main.py
+Before running, make sure comic files are present in ../comics directory.
+The code creates corpus-wide feature vector, instance-wide feature vector
+and a stop word list and stores them on disk. These vectors are
+created only during first run. For subsequent runs, it loads the 
+vectors from the disk. It saves computation time. If anything is 
+changed in vector construction related code, run:
+$./main.py clean
+
+This will delete previously stored state. Fresh vectors will be constructed
+in the next run.
+
+Refer to comments in the code for clustering algorithm and related details.
+
+Comics Used
+-----------
+- Calvin And Hobbes. 3696 instances.
+- College Roomies From Hell. 2631 instances.
+- Diesel Sweeties. 1778 instances.
+- Goats. 2266 instances.
+- General Protection Fault. 3298 instances.
+- Nukees. 889 instances.
+- Questionable Content. 1747 instances.
+- Sheldon. 3263 instances.
+- Xkcd. 960 instances.
+
+Total Comics: 9
+Total Comic Instances: 20528
