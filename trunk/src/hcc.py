@@ -6,9 +6,12 @@ class hcc:
     This class clusters the input features using
     hierarchial co-clustering. It uses the algorithm
     described by Jingxuan Li and Tao Li in their paper
-    'HCC: A Hierarchical Co-Clustering Algorithm'.
-    The paper is available at:
+    'HCC: A Hierarchical Co-Clustering Algorithm'. They
+    improve the algorithm described in 
+    'An error variance approach to two-mode hierarchical clustering'
+    The papers is available at:
     http://users.cs.fiu.edu/~taoli/pub/sigir10-p861-li.pdf
+    http://www.springerlink.com/content/v3q6u7820u35x327/
 
     It takes as input, the corpus-wide feature vector 
     consisting of words and their frequency count. It also
@@ -30,6 +33,13 @@ class hcc:
     '''
     self.v_ft   = v_ft
     self.v_in   = v_in
+    self.center = None
+
+  def doc_len(self, d):
+    c   = 0.0
+    for v in self.v_in[d].values():
+      c += v
+    return c
 
   def tfidf(self, w, d):
     '''
@@ -37,20 +47,25 @@ class hcc:
       w   : word
       d   : document
     '''
-    tf  = float(self.v_ft [0][w][1])
-    idf = log(float(self.v_ft [1])/tf)
+    tf  = 0.0
+    if self.v_in[d].has_key(w):
+      tf  = float(self.v_in[d][w])/self.doc_len(d)
+    idf = log(float(self.v_ft [1])/(1.0+self.v_ft [0][w][1]))
     return tf*idf
+
+  def compute_centroid(self):
+    if self.center is None:
+      self.center = max([self.tfidf(x,y) for x in self.v_ft [0] for y in self.v_in])
+    return self.center
 
   def compute_ch(self, p, q):
     '''
       In this function we compute cluster heterogeneity.
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
-        mu    = Avg(x[i,j])
+        mu    = Max value in the termXdocument matrix
     '''
     xs  = [self.tfidf(x,y) for x in p[0]+q[0] for y in p[1]+q[1]]
-    mu  = sum(xs)/float(len(xs))
-    ch  = (1.0/float((len(p[0])+len(q[0]))*(len(p[1])+len(q[1]))))*sum([pow(x-mu,2) for x in xs])
-    return ch
+    return (1.0/float((len(p[0])+len(q[0]))*(len(p[1])+len(q[1]))))*sum([pow(x-self.compute_centroid(),2) for x in xs])
 
   def pickup_two_nodes(self, m):
     '''
