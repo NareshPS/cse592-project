@@ -13,7 +13,6 @@ class save_object:
       fp  = open(store_name, 'w')
       pickle.dump(obj, fp)
       fp.close()
-
     else:
       raise Exception('Null object or store name')
 
