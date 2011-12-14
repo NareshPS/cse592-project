@@ -313,3 +313,8 @@ very
 says
 say
 said
+reply
+replies
+replied
+looks
+looked
