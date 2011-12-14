@@ -108,4 +108,5 @@ class hcc:
       m.remove(q)
       m.append(o)
       cluster.append(m)
-    print cluster
+    for x in cluster:
+      print x
