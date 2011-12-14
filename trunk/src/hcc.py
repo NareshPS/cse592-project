@@ -41,25 +41,25 @@ class hcc:
     idf = log(float(self.v_ft [1])/tf)
     return tf*idf
 
-  def compute_ch(self, m):
+  def compute_ch(self, p, q):
     '''
       In this function we compute cluster heterogeneity.
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
         mu    = Avg(x[i,j])
     '''
-    print m
-    xs  = None
-    [self.tfidf(x,y) for x in m[0] for y in m[1]]
+    xs  = [self.tfidf(x,y) for x in p[0]+q[0] for y in p[1]+q[1]]
     mu  = sum(xs)/float(len(xs))
-    print xs, mu
-    return 1.0
-    #return ((1.0/float(len(m[0])*len(m[1])))*float(sum(pow((),2.0))))
-
+    ch  = (1.0/float((len(p[0])+len(q[0]))*(len(p[1])+len(q[1]))))*sum([pow(x-mu,2) for x in xs])
+    return ch
 
   def pickup_two_nodes(self, m):
     '''
       Pickup two nodes with minimum value of CH.
+      Call compute_ch to get CH values.
     '''
+    ch_vals = [(self.compute_ch(p,q),p,q) for p in m if len(p [0])!=0 for q in m if len(q [1])!=0 and p!=q]
+    ch_sort = sorted(ch_vals, key=lambda ch: ch[0])
+    return (ch_sort[0][1], ch_sort[0][2])
      
   def merge(self, p, q):
     '''
@@ -99,12 +99,13 @@ class hcc:
     l[-1:]  = [([],[x]) for x in v_in]
     N       = len(l)
     cluster = [l]
-    for i in range(0,N):
+    for i in range(0,N-1):
       m     = copy(l)
       l     = m
       p, q  = self.pickup_two_nodes(m)
       o     = self.merge(p, q)
-      del m[p]
-      del m[q]
+      m.remove(p)
+      m.remove(q)
+      m.append(o)
       cluster.append(m)
     print cluster
