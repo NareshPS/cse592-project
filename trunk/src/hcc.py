@@ -1,4 +1,3 @@
-from math import log
 from copy import copy
 
 class hcc:
@@ -20,12 +19,11 @@ class hcc:
     It starts with computing TF-IDF on the input vectors to create
     a relationship matrix describing the relation between 
     words and documents.
-      The matrix X[i,j] = (x[i,j]) for each i in corpus-wide feature vector
-      and each j in input documents. Each element of the matrix is 
-      tf-idf value for the word and that document. It doesn't compute the 
+      The matrix X[i,j] = (x[i,j]). The values for each cell are 
+      acquired using self.call callback. It doesn't compute the 
       matrix at once, but does it when the value requires computation.
   '''
-  def __init__(self, v_ft, v_in):
+  def __init__(self, callback, v_ft, v_in):
     '''
       init function for the class.
       v_ft    : corpus-wide feature vector.
@@ -33,29 +31,12 @@ class hcc:
     '''
     self.v_ft   = v_ft
     self.v_in   = v_in
+    self.call   = callback
     self.center = None
-
-  def doc_len(self, d):
-    c   = 0.0
-    for v in self.v_in[d].values():
-      c += v
-    return c
-
-  def tfidf(self, w, d):
-    '''
-      Computes tf-idf value for a cell given by X[w,d].
-      w   : word
-      d   : document
-    '''
-    tf  = 0.0
-    if self.v_in[d].has_key(w):
-      tf  = float(self.v_in[d][w])/self.doc_len(d)
-    idf = log(float(self.v_ft [1])/(1.0+self.v_ft [0][w][1]))
-    return tf*idf
 
   def compute_centroid(self):
     if self.center is None:
-      self.center = max([self.tfidf(x,y) for x in self.v_ft [0] for y in self.v_in])
+      self.center = max([self.call(self.v_ft, self.v_in, x,y) for x in self.v_ft [0] for y in self.v_in])
     return self.center
 
   def compute_ch(self, p, q):
@@ -64,7 +45,7 @@ class hcc:
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
         mu    = Max value in the termXdocument matrix
     '''
-    xs  = [self.tfidf(x,y) for x in p[0]+q[0] for y in p[1]+q[1]]
+    xs  = [self.call(self.v_ft, self.v_in, x,y) for x in p[0]+q[0] for y in p[1]+q[1]]
     return (1.0/float((len(p[0])+len(q[0]))*(len(p[1])+len(q[1]))))*sum([pow(x-self.compute_centroid(),2) for x in xs])
 
   def pickup_two_nodes(self, m):
@@ -123,5 +104,4 @@ class hcc:
       m.remove(q)
       m.append(o)
       cluster.append(m)
-    for x in cluster:
-      print x
+    return cluster
