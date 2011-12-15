@@ -211,9 +211,16 @@ class main:
       for node in level:
         if len(node [0])!=0 and len(node [1])!=0:
           series  = [v_doc[x] for x in node [1]]
+          new     = False
           for s in series:
             for d in node [1]:
-              ds[d][s]  += l_val
+              if ds[d][s]==0.0:
+                new = True
+                break
+          if new is True:
+            for s in series:
+              for d in node [1]:
+                ds[d][s]  += l_val
       l_val -= 1
     return ds
 
