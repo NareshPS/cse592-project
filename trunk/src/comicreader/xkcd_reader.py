@@ -1,5 +1,6 @@
 import config.siteconfig
-import os, sys, datetime, json, string, re
+import os, sys, datetime, string, re
+import simplejson as json
 import stringutils
 
 class xkcd_reader:

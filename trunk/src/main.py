@@ -9,7 +9,7 @@ from PorterStemmer import PorterStemmer
 from stopwords import stopwords
 from hcc import hcc
 from math import log
-from ete2 import Tree
+
 class main:
   def __init__(self):
     '''
@@ -91,9 +91,6 @@ class main:
     inst  = reader_obj.get_next_instance()
     i = 0
     while inst != None:
-      i = i +1;
-      if (i > 2):
-         break
       v_ft [1]  += 1
       v_new     = {}
       self.add_to_vector(inst[2], v_ft [0], v_new, v_st)
@@ -270,18 +267,23 @@ class main:
       print k,v[0]
     '''
 
-    #Do word-document clustering. Use hcc class for that.
-    c       = hcc(self.tfidf, v_ft, v_in,False,v_doc)
-    cluster = c.hcc_cluster()
+    c_wd    = self.saver.load_it(CLUSTER_WD)
+    if c_wd is None:
+      #Do word-document clustering. Use hcc class for that.
+      c       = hcc(self.tfidf, v_ft, v_in,False,v_doc)
+      c_wd    = c.hcc_cluster()
+      self.saver.save_it(c_wd, CLUSTER_WD)
+    self.m_ds = self.init_ds_matrix(v_in, v_doc, c_wd)
 
-    self.m_ds = self.init_ds_matrix(v_in, v_doc, cluster)
-    #Do document-series clustering. Use hcc class for that.
-    d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()),True,v_doc)
-    cluster = d.hcc_cluster()
-    for level in cluster:
-      print level
-    r = level[0]
-    r[2].show() 
+    c_ds    = self.saver.load_it(CLUSTER_DS)
+    if c_ds is None:
+      #Do document-series clustering. Use hcc class for that.
+      d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()),True,v_doc)
+      c_ds = d.hcc_cluster()
+      self.saver.save_it(c_ds, CLUSTER_DS)
+
+    #r = level[0]
+    #r[2].show() 
     
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
@@ -296,7 +298,7 @@ if __name__ == '__main__':
     Or run the following command.
     $ ./main.py clean
   '''
-  cleanup = [FT_VECTOR, INST_VECTORS, STEM_LIST]
+  cleanup = [FT_VECTOR, INST_VECTORS, STEM_LIST, CLUSTER_WD, CLUSTER_DS, COMIC_VECTORS]
   if len(sys.argv) == 2 and sys.argv[1] == 'clean':
     for i in cleanup:
       if os.path.exists(i) is True:
