@@ -9,7 +9,7 @@ from PorterStemmer import PorterStemmer
 from stopwords import stopwords
 from hcc import hcc
 from math import log
-
+from ete2 import Tree
 class main:
   def __init__(self):
     '''
@@ -89,7 +89,11 @@ class main:
     '''
     reader_obj.connect()
     inst  = reader_obj.get_next_instance()
+    i = 0
     while inst != None:
+      i = i +1;
+      if (i > 2):
+         break
       v_ft [1]  += 1
       v_new     = {}
       self.add_to_vector(inst[2], v_ft [0], v_new, v_st)
@@ -267,16 +271,18 @@ class main:
     '''
 
     #Do word-document clustering. Use hcc class for that.
-    c       = hcc(self.tfidf, v_ft, v_in)
+    c       = hcc(self.tfidf, v_ft, v_in,False,v_doc)
     cluster = c.hcc_cluster()
 
     self.m_ds = self.init_ds_matrix(v_in, v_doc, cluster)
     #Do document-series clustering. Use hcc class for that.
-    d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()))
+    d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()),True,v_doc)
     cluster = d.hcc_cluster()
     for level in cluster:
       print level
-
+    r = level[0]
+    r[2].show() 
+    
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
   if os.path.join(PROJECT_PATH, SRC_DIR) != os.getcwd():
