@@ -267,18 +267,18 @@ class main:
       print k,v[0]
     '''
 
-    c_wd    = self.saver.load_it(CLUSTER_WD)
-    if c_wd is None:
+    self.m_ds   = self.saver.load_it(CLUSTER_WD)
+    if self.m_ds is None:
       #Do word-document clustering. Use hcc class for that.
-      c       = hcc(self.tfidf, v_ft, v_in,False,v_doc)
-      c_wd    = c.hcc_cluster()
-      self.saver.save_it(c_wd, CLUSTER_WD)
-    self.m_ds = self.init_ds_matrix(v_in, v_doc, c_wd)
+      c             = hcc(self.tfidf, v_ft, v_in, False, v_doc)
+      self.m_ds     = c.hcc_cluster(v_doc)
+      self.saver.save_it(self.m_ds, CLUSTER_WD)
+      #self.m_ds = self.init_ds_matrix(v_in, v_doc, c_wd)
 
     c_ds    = self.saver.load_it(CLUSTER_DS)
     if c_ds is None:
       #Do document-series clustering. Use hcc class for that.
-      d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()),True,v_doc)
+      d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()), True, v_doc)
       c_ds = d.hcc_cluster()
       self.saver.save_it(c_ds, CLUSTER_DS)
 

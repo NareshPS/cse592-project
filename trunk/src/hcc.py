@@ -40,7 +40,13 @@ class hcc:
     self.v_doc = v_doc
   def compute_centroid(self):
     if self.center is None:
-      self.center = max([self.call(self.v_ft, self.v_in, x,y) for x in self.v_ft [0] for y in self.v_in])
+      m_val     = -1.0
+      for x in self.v_ft [0]:
+        for y in self.v_in:
+          n_val = self.call(self.v_ft, self.v_in, x,y)
+          if n_val > m_val:
+            m_val = n_val
+      self.center = m_val
     return self.center
 
   def compute_ch(self, p, q):
@@ -57,9 +63,17 @@ class hcc:
       Pickup two nodes with minimum value of CH.
       Call compute_ch to get CH values.
     '''
-    ch_vals = [(self.compute_ch(p,q),p,q) for p in m if len(p [0])!=0 for q in m if len(q [1])!=0 and p!=q]
-    ch_sort = sorted(ch_vals, key=lambda ch: ch[0])
-    return (ch_sort[0][1], ch_sort[0][2])
+    len_m   = len(m)
+    nodes   = None
+    m_val   = 5000000.0
+    for p_in in range(0, len_m):
+      for q_in in range(p_in+1, len_m):
+        if len(m [p_in][0])+len(m [q_in][0])!=0 and len(m [p_in][1])+len(m [q_in][1])!=0:
+          c_val     = self.compute_ch(m [p_in], m[q_in])
+          if c_val < m_val:
+            m_val   = c_val
+            nodes   = (m [p_in], m [q_in])
+    return nodes
      
   def merge(self, p, q):
     '''
@@ -112,7 +126,7 @@ class hcc:
     	t.set_style(nstyle)    
      return t 
   '''
-  def hcc_cluster(self):
+  def hcc_cluster(self, v_doc):
     '''
       This function runs the clustering algorithm. The algorithm
       is described below:
@@ -133,20 +147,48 @@ class hcc:
     '''
     v_ft  = self.v_ft
     v_in  = self.v_in
+    m_ds  = {}
+    if v_doc is not None:
+      for r in v_in:
+        if m_ds.has_key(r) is False:
+          m_ds[r]   = {}
+        for c in set(v_doc.values()):
+          m_ds[r][c]= 0.0
+
     #Create bottom layer of the cluster.
     #Bottom layer contains all the words and documents.
-    l       = [([x],[]) for x in v_ft [0]]
-    l.append('')
-    l[-1:]  = [([],[x]) for x in v_in]
-    N       = len(l)
-    cluster = [l]
+    m       = [([x],[]) for x in v_ft [0]]
+    m.append('')
+    m[-1:]  = [([],[x]) for x in v_in]
+    N       = len(m)
+    cluster = [m]
+    l_val   = N
     for i in range(0,N-1):
-      m     = copy(l)
-      l     = m
+      if v_doc is None:
+        m   = copy(m)
       p, q  = self.pickup_two_nodes(m)
       o     = self.merge(p, q)
       m.remove(p)
       m.remove(q)
       m.append(o)
-      cluster.append(m)
-    return cluster
+      if v_doc is not None:
+        for node in m:
+          if len(node [0])!=0 and len(node [1])!=0:
+            series  = [v_doc[x] for x in node [1]]
+            new     = False
+            for s in series:
+              for d in node [1]:
+                if ds[d][s]==0.0:
+                  new = True
+                  break
+            if new is True:
+              for s in series:
+                for d in node [1]:
+                  ds[d][s]  += l_val
+        l_val -= 1
+      else:
+        cluster.append(m)
+    if v_doc is not None:
+      return m_ds
+    else:
+      return cluster
