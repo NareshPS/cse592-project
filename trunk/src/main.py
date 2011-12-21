@@ -274,8 +274,8 @@ class main:
     self.m_ds   = self.saver.load_it(CLUSTER_WD)
     if self.m_ds is None:
       #Do word-document clustering. Use hcc class for that.
-      c             = hcc(self.tfidf, v_ft, v_in, False, v_doc)
-      self.m_ds     = c.hcc_cluster(v_doc)
+      c             = hcc(self.tfidf, v_ft, v_in, v_doc, False)
+      self.m_ds     = c.hcc_cluster(True)
       self.saver.save_it(self.m_ds, CLUSTER_WD)
       #self.m_ds = self.init_ds_matrix(v_in, v_doc, c_wd)
 

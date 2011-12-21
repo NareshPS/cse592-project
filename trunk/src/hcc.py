@@ -24,7 +24,7 @@ class hcc:
       acquired using self.call callback. It doesn't compute the 
       matrix at once, but does it when the value requires computation.
   '''
-  def __init__(self, callback, v_ft, v_in,TreeDraw,v_doc):
+  def __init__(self, callback, v_ft, v_in, v_doc, TreeDraw):
     '''
       init function for the class.
       v_ft    : corpus-wide feature vector.
@@ -100,7 +100,6 @@ class hcc:
     t.add_child(q[2])
     t.name = p[2].name +","+ q[2].name
     '''
-    print p+q
     return p+q
 
   '''
@@ -130,7 +129,7 @@ class hcc:
     	t.set_style(nstyle)    
      return t 
   '''
-  def hcc_cluster(self, v_doc):
+  def hcc_cluster(self, matrix=False):
     '''
       This function runs the clustering algorithm. The algorithm
       is described below:
@@ -151,8 +150,9 @@ class hcc:
     '''
     v_ft  = self.v_ft
     v_in  = self.v_in
+    v_doc = self.v_doc
     m_ds  = {}
-    if v_doc is not None:
+    if matrix is True:
       for r in v_in:
         if m_ds.has_key(r) is False:
           m_ds[r]   = {}
@@ -173,23 +173,14 @@ class hcc:
       m.remove(p)
       m.remove(q)
       m.append(o)
-      if v_doc is not None:
+      if matrix is True:
         for node in m:
           series  = [v_doc[x] for x in node [1]]
           new     = False
-          for s in series:
-            for d in node [1]:
-              if d[d][s]==0.0:
-                new = True
-                break
-          if new is True:
-            for s in series:
-              for d in node [1]:
-                ds[d][s]  += l_val
         l_val -= 1
       else:
         cluster.append(m)
-    if v_doc is not None:
+    if matrix is True:
       return m_ds
     else:
       return cluster
