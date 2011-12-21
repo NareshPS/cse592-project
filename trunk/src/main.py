@@ -90,13 +90,17 @@ class main:
     reader_obj.connect()
     inst  = reader_obj.get_next_instance()
     i = 0
+    count = 1
     while inst != None:
+      if count == 10:
+        break
       v_ft [1]  += 1
       v_new     = {}
       self.add_to_vector(inst[2], v_ft [0], v_new, v_st)
       v_in [inst[1]]  = v_new
       v_doc [inst[1]] = series
       inst  = reader_obj.get_next_instance()
+      count += 1
     reader_obj.disconnect()
 
   def launch_readers(self, callback, v_ft, v_in, v_st, v_doc):

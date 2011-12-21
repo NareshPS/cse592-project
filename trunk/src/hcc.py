@@ -33,21 +33,22 @@ class hcc:
     self.v_ft   = v_ft
     self.v_in   = v_in
     self.call   = callback
-    self.center = None
+    self.v_doc  = v_doc
     self.eteTree = None
     self.instcount = 0
     self.scount = 0
-    self.v_doc = v_doc
-  def compute_centroid(self):
-    if self.center is None:
-      m_val     = -1.0
-      for x in self.v_ft [0]:
-        for y in self.v_in:
-          n_val = self.call(self.v_ft, self.v_in, x,y)
-          if n_val > m_val:
-            m_val = n_val
-      self.center = m_val
-    return self.center
+
+  def compute_centroid(self, cluster):
+    '''
+      Compute centroid.
+      Centroid is the center of the cluster. Mathematically,
+      it is the average of distances between the cluster nodes.
+      It would have lesser value for tight clusters.
+    '''
+    mu  = 0.0
+    for n in cluster:
+      mu  += self.call(self.v_ft, self.v_in, n[0], n[1])
+    return mu 
 
   def compute_ch(self, p, q):
     '''
@@ -55,8 +56,11 @@ class hcc:
         CH(C) = (1/mn)*sum(square(x[i,j] - mu))
         mu    = Max value in the termXdocument matrix
     '''
-    xs  = [self.call(self.v_ft, self.v_in, x,y) for x in p[0]+q[0] for y in p[1]+q[1]]
-    return (1.0/float((len(p[0])+len(q[0]))*(len(p[1])+len(q[1]))))*sum([pow(x-self.compute_centroid(),2) for x in xs])
+    xs  = 0.0
+    mu  = self.compute_centroid(p+q)
+    for n in p+q:
+      xs  += pow(self.call(self.v_ft, self.v_in, n[0], n[1])-mu, 2)
+    return (1.0/float(2*(len(p)+len(q))))*xs
 
   def pickup_two_nodes(self, m):
     '''
@@ -65,14 +69,13 @@ class hcc:
     '''
     len_m   = len(m)
     nodes   = None
-    m_val   = 5000000.0
+    m_val   = None
     for p_in in range(0, len_m):
       for q_in in range(p_in+1, len_m):
-        if len(m [p_in][0])+len(m [q_in][0])!=0 and len(m [p_in][1])+len(m [q_in][1])!=0:
-          c_val     = self.compute_ch(m [p_in], m[q_in])
-          if c_val < m_val:
-            m_val   = c_val
-            nodes   = (m [p_in], m [q_in])
+        c_val     = self.compute_ch(m [p_in], m[q_in])
+        if m_val is None or c_val < m_val:
+          m_val   = c_val
+          nodes   = (m [p_in],m [q_in])
     return nodes
      
   def merge(self, p, q):
@@ -97,7 +100,8 @@ class hcc:
     t.add_child(q[2])
     t.name = p[2].name +","+ q[2].name
     '''
-    return (p[0]+q[0], p[1]+q[1])
+    print p+q
+    return p+q
 
   '''
   def mktreeNode(self,x,instace):
@@ -157,9 +161,7 @@ class hcc:
 
     #Create bottom layer of the cluster.
     #Bottom layer contains all the words and documents.
-    m       = [([x],[]) for x in v_ft [0]]
-    m.append('')
-    m[-1:]  = [([],[x]) for x in v_in]
+    m       = [[(x,y)] for x in v_ft [0] for y in v_in]
     N       = len(m)
     cluster = [m]
     l_val   = N
@@ -173,18 +175,17 @@ class hcc:
       m.append(o)
       if v_doc is not None:
         for node in m:
-          if len(node [0])!=0 and len(node [1])!=0:
-            series  = [v_doc[x] for x in node [1]]
-            new     = False
+          series  = [v_doc[x] for x in node [1]]
+          new     = False
+          for s in series:
+            for d in node [1]:
+              if d[d][s]==0.0:
+                new = True
+                break
+          if new is True:
             for s in series:
               for d in node [1]:
-                if ds[d][s]==0.0:
-                  new = True
-                  break
-            if new is True:
-              for s in series:
-                for d in node [1]:
-                  ds[d][s]  += l_val
+                ds[d][s]  += l_val
         l_val -= 1
       else:
         cluster.append(m)
