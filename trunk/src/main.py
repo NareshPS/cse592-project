@@ -9,6 +9,7 @@ from PorterStemmer import PorterStemmer
 from stopwords import stopwords
 from hcc import hcc
 from math import log
+from lang_model import model
 
 class main:
   def __init__(self):
@@ -21,6 +22,8 @@ class main:
     self.ps     = PorterStemmer()
     self.st     = stopwords()
     self.m_ds   = {}
+    self.models = {}
+    self.m_mod  = model()
 
   def add_to_vector(self, text, v_ft, v_in, v_st):
     '''
@@ -75,7 +78,6 @@ class main:
     for key in v_in.keys():
       tup = v_ft [key]
       v_ft [key]  = (tup[0], tup[1]+1)
-
 
   def read_corpus(self, reader_obj, v_ft, v_in, v_st, v_doc, series):
     '''
@@ -143,7 +145,6 @@ class main:
     v_ft [0]  = {}
     v_ft [1]  = 0
     self.launch_readers(self.read_corpus, v_ft, v_in, v_st, v_doc)
-
     '''
       The feature vector would be huge as it contains
       almost all the differnt words in the corpus.
@@ -247,6 +248,63 @@ class main:
       self.saver.save_it(c_ds, CLUSTER_DS)
     #r = level[0]
     #r[2].show() 
+
+  def create_models(self, reader_obj, series, args):
+    reader_obj.connect()
+    inst  = reader_obj.get_next_instance()
+    count = 1
+    text  = inst [2]
+    while inst != None:
+      inst  = reader_obj.get_next_instance()
+      text  += inst [2]
+      if count == 10:
+        break
+      else:
+        count += 1
+    args [series] = self.m_mod.build_model(text)
+
+  def create_rship_matrix(self, reader_obj, series, args):
+    '''
+      Initialize Relationship matrix.
+      Read each document from the corpus and initialize
+      the relationship matrix for each pair of
+      docment and series.
+      The values for matrix cells are returned by the models.
+    '''
+    args [series] = {}
+    reader_obj.connect()
+    inst  = reader_obj.get_next_instance()
+    count = 1
+    text  = ''
+    while inst != None:
+      text  += inst [2]
+      args [series][inst[1]]  = self.m_mod.ppx(self.models[series], inst[2])
+      inst  = reader_obj.get_next_instance()
+      if count == 10:
+        break
+      else:
+        count += 1
+
+  def launch_corpus_reader(self, callback, args):
+    print 'Launching Readers.'
+    for tup in COMIC_READERS:
+      object  = globals()[tup[0]]
+      print 'Processing: ' + tup[0] + " Value: " + tup[1]
+      callback(getattr(object,tup[0])(tup[1]), tup[1], args)
+
+  def run_cluster1(self):
+    '''
+      This method uses language models to cluster web-comics.
+      First, it creates the model for each comic series.
+      The models are created using NLTK. Then, it gets the probability
+      of each document in the series. This way we get the relationship
+      matrix of document and series.
+      ext, we run the HCC algorithm to cluster these comics.
+    '''
+    m_rship   = {}
+    self.launch_corpus_reader(self.create_models, self.models)
+    self.launch_corpus_reader(self.create_rship_matrix, m_rship)
+    print m_rship
     
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
@@ -268,4 +326,4 @@ if __name__ == '__main__':
         os.remove(i)
   else:
     m   = main()
-    m.run_cluster()
+    m.run_cluster1()
