@@ -310,7 +310,7 @@ class main:
       #Do word-document clustering. Use hcc class for that.
       c       = hcc(self.ds_cell, v_series, v_docs, False)
       cluster = c.hcc_cluster()
-      self.saver.save_it(cluster)
+      self.saver.save_it(cluster, CLUSTER_DS)
     
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
