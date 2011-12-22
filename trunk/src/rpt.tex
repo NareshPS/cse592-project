@@ -32,26 +32,36 @@ In this Internet age, the comics that are available on the web have exploded. Bu
 \section{Introduction}
 People have been using the medium of comics since a very long time. Comics were traditionally found only in newspapers and print material, for which people had to pay money. But in the present day, a number of people have started their own web based comic series. Another interesting fact is that some of the comics which are printed in newspapers are also available online. Hence, readers are looking more and more to the web for their comic needs. Now, a user who is reading some comic, is naturally interested in finding out other similar comics. We decided to solve this problem by creating group os similar comics together, as that will aid in future navigation and search. At a first glance, it feels like a tough problem, because the approach of doing image analysis doesnt feel like giving good results. Because, comic images are not standard and usually very rudimentary and do not represent real world entities faithfully. Another approach is to mine blogs, and search results to get this data. Our approach is to use the information in the transcripts to find similarities. This is a powerful approach because in most cases, the transcript contains not just the text of the comics, but also additional details describing the image, scene and setting too. Moreover, one doesn't have to do complex image analysis to understand what the comic is about. And in our opinion, its an easy and better way to understand and analyse the comic. Thus, the transcripts constitute our data samples. We can now do clustering on this data to find out groups of comics similar to each other. We can also use the comic series themselves as samples, and cluster them.  We decided to go one step ahead and do a heirarchical clustering, as that will allow to create coarse grained clusters too. Moreover, since similarity about comic instances hints at similarity between the comic series they belong to and vice versa. Hence, simultaneously clustering series and instances is a good way to solve the problem described earlier. Thus, the comic series names and individial instances from all series constitute our data samples. Obviously, the features needed will have to come from the text of the comics. Since we have the transcripts we can do linguistic analysis to find relevant features and similarity measures. Using that information clusters can be created.
 
-There has been a lot of work done on co-clustering of words and documents as described in blah blah blah. Blah have described an algorithm to do heirarchical co-clustering. A modification of this called \emph{HCC} is proposed in blah. We have modified this a little and used it in our project.
+Eckes, et al\cite{HCC2} have described an algorithm to do heirarchical co-clustering. A modification of this called \emph{HCC} is proposed in Jingxuan Li et al,\cite{HCC1}. We have modified this and used it in our project.
 
 \section{Dataset}
 We used a crawler to collect data for our project, which downloads the HTML from a web page. We then automated extraction of the comic transcript from the HTML text. In this manner, we collected transcripts of some popular comics. The size and distribution of our dataset is as follows:
 \begin{itemize}
 \item
-  About 20000 documents from 9 comic series
+  About 20528 documents from 9 comic series
 \item
   Downloaded following comic series from OhNoRobot CITE
-  \begin{itemize}
-  \item Nukees
-  \item College Roomies From Hell
-  \item Questionable Content
-  \item Sheldon
-  \item Goats
-  \item General Protection Fault
-  \item Diesel Sweeties
+\begin{itemize}
+\item
+  Calvin And Hobbes - 3696 instances
+\item
+  College Roomies From Hell - 2631 instances
+\item
+  Diesel Sweeties - 1778 instances
+\item
+  Goats - 2266 instances
+\item
+  General Protection Fault - 3298 instances
+\item
+  Nukees - 889 instances
+\item
+  Questionable Content -  1747 instances
+\item
+  Sheldon - 3263 instances
   \end{itemize}
 \item
-  XKCD comics, available from XKCD CITE
+Xkcd - 960 instances
+Available from XKCD CITE
 \item
   Calvin and Hobbes from blah
 \end{itemize}
@@ -61,7 +71,7 @@ We use the fact that information about documents from different series tells us 
 Given two types of data objects $A={a_1,a_2,\ldots,a_n}$ and $B={b_1,b_2,\ldots,b_n}$ and a matrix $X$, such that $x_{ij} \in \mathbb{R}$ represents the relation between $a_i$ and $b_j$. We need to simultaneously cluster objects in $A$ and $B$, and create heirarchies out of those clusters.
 Here we describe 
 HCC starts off with singleton clusters containing a tuple, which is a pair of a single document and a single series, and combines nearest two clusters in each iteration, until there is only one cluster. Thus, a dendrogram is generated, with the leaves being tuples containing a single document and a single series, and internal nodes containing a cluster of such tuples. At the root, we have all such tuples.
-The HCC algorithm as given in blah is described below with a slight modification. We modified it to be able to do blah
+The HCC algorithm as given in blah is described below with a slight modification.
 \begin{algorithm}[H]
   \caption{HCC Algorithm Description}
   \label{hcc_algo}
@@ -82,8 +92,10 @@ Given a cluster $C$ with $m$ tuples, the cluster heterogenity of this cluster $C
 \begin{displaymath}
   CH(C)=\frac{1}{|C|}\sum_{(a_i,b_j) \in C}(x_{ij}-\mu)^2
 \end{displaymath}
-where $\mu=\frac{1}{|C|}\sum_{(a_i,b_j) \in C}x_{ij}$
+where $\mu=\frac{1}{|C|}\sum_{(a_i,b_j) \in C}x_{ij}$.
+Another choice for $\mu$ was given in \cite{HCC2} in which they used $\mu=max(x_{ij}), \forall x_{ij} \in X$. We ran our experiment using this measure too.
 The clusters to be merged are found out by calculating $CH(C_1,C_2)$, for all pairs of clusters $C_1,C_2$ from the current clusters, and picking the one which has the minimum $CH(C)$. We are determining the variance of the newly formed cluster and picking that cluster which will have least variance.
+The algorithm without modification, used a very similar technique for co-clustering. The difference is that it started off with all the documents and series as the leaves, and then grouped all documents in the two clusters picked for merging in that iteration with all series from the two clusters. Here we have relaxed that constraint by having tuple of document and series as the leaves.
 
 \section(HCC for Comics Series and Instances)
 We apply the algorithm described above to our problem of creating simultaneously a heirarchical clustering of comic series and instances.
@@ -158,8 +170,16 @@ Since perplexity denotes the inverse of the likelihood of the text with respect 
 \section{Results and Discussion}
 Below is part of a dendrogram that was generated when we ran our algorithm on 900 documents from 9 series.
 \includegraphics[height=\textheight]{demo1.pdf}
-We did observe that similar comics and series were grouped together. For example, instances from series $S6$ \emph{College Roomies From Hell} were grouped together initially
-
+We did observe that similar comics and series were grouped together. For example, instances from series $S6$ \emph{College Roomies From Hell} were clustered with that series and then grouped with $S4$ \emph{XKCD}. We thus see a simultaneous clustering of comic series and instances.
 
 \section{Future Work}
+One area to explore is to use more sophisiticated natural language processing techniques to obtain relationship between comic series and instances. Another improvement is that once these clusters are generated, if we wanted to add in new data, the entire process has to be redone. That turns out to be quite costly and inefficient, because new data will be added frequently, as new comics are published almost every week. To solve this, we could use the current distribution of series and instances, as prior information and use sequential updating,  to determine which cluster new instances and series should be added to.
 \end{document}
+
+\begin{thebibliography}{9}
+\bibitem{HCC1} Jingxuan Li et al, \emph{HCC: A Hierarchical Co-clustering Algorithm}
+\bibitem{HCC2} T. Eckes et al, \emph{An error variance approach to
+two-mode hierarchical clustering}
+\bibitem{robot} OhNoRobot \emph{http://OhNoRobot.com}
+\bibitem{xkcd} XKCD comics \emph{http://xkcd.com}
+\end{thebibliography}
