@@ -26,9 +26,7 @@ class model:
       m     : model
       text  : text
     '''
-    c = wordpunct_tokenize(text)
-    print c
-    print 1/pow(m.entropy(c), 2.0)
+    print 1/pow(m.entropy(text), 2.0)
 
 if __name__ == '__main__':
   m   = model()
