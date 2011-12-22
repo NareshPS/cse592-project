@@ -147,6 +147,14 @@ class hcc:
         Add List to H at a higher layer
       end for
       -------------------------------------
+      We also populate another matrix which is used
+      as relationship matrix for document-series clustering.
+      The value is computed based on the clusters
+      obtained from word-document clustering.
+      First, we initializes the matrix to 0.0 values.
+      Then, we add up the level at which cluster has has been
+      merged. We add up the level value to each document series
+      pair in the corss-product of documentXseries for the new cluster.
     '''
     v_ft  = self.v_ft
     v_in  = self.v_in
@@ -174,9 +182,13 @@ class hcc:
       m.remove(q)
       m.append(o)
       if matrix is True:
-        for node in m:
-          series  = [v_doc[x] for x in node [1]]
-          new     = False
+        n_val   = 0.0
+        series  = set()
+        for node in o:
+          series.add(v_doc[node[1]])
+        for node in o:
+          for s in series:
+            m_ds[node[1]][s]  += m_ds[node[1]][s] + l_val
         l_val -= 1
       else:
         cluster.append(m)

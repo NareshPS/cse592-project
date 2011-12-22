@@ -195,39 +195,6 @@ class main:
       It is populated by init_ds_matrix() method.
     '''
     return self.m_ds[doc][series]
-    
-  def init_ds_matrix(self, v_in, v_doc, cluster):
-    '''
-      This method populates self.ds matrix.
-      The value is computed based on the clusters
-      obtained from word-document clustering.
-      First, it initializes the matrix to 0.0 values.
-      Then, it traverses the cluster to update values.
-    '''
-    ds  = {}
-    for r in v_in:
-      if ds.has_key(r) is False:
-        ds[r]     = {}
-      for c in set(v_doc.values()):
-        ds[r][c]  = 0.0
-
-    l_val   = len(cluster)
-    for level in cluster:
-      for node in level:
-        if len(node [0])!=0 and len(node [1])!=0:
-          series  = [v_doc[x] for x in node [1]]
-          new     = False
-          for s in series:
-            for d in node [1]:
-              if ds[d][s]==0.0:
-                new = True
-                break
-          if new is True:
-            for s in series:
-              for d in node [1]:
-                ds[d][s]  += l_val
-      l_val -= 1
-    return ds
 
   def run_cluster(self):
     '''
@@ -265,27 +232,19 @@ class main:
       self.saver.save_it(v_st, STEM_LIST)
       self.saver.save_it(v_doc, COMIC_VECTORS)
    
-    #Prints the feature vector.
-    '''
-    for k,v in v_ft [0].items():
-      print k,v[0]
-    '''
-
     self.m_ds   = self.saver.load_it(CLUSTER_WD)
     if self.m_ds is None:
       #Do word-document clustering. Use hcc class for that.
       c             = hcc(self.tfidf, v_ft, v_in, v_doc, False)
       self.m_ds     = c.hcc_cluster(True)
       self.saver.save_it(self.m_ds, CLUSTER_WD)
-      #self.m_ds = self.init_ds_matrix(v_in, v_doc, c_wd)
 
     c_ds    = self.saver.load_it(CLUSTER_DS)
     if c_ds is None:
       #Do document-series clustering. Use hcc class for that.
-      d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()), True, v_doc)
-      c_ds = d.hcc_cluster()
+      d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()), v_doc, True)
+      c_ds = d.hcc_cluster(False)
       self.saver.save_it(c_ds, CLUSTER_DS)
-
     #r = level[0]
     #r[2].show() 
     
