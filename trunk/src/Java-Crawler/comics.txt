@@ -1,0 +1,68 @@
+;; This buffer is for notes you don't want to save, and for Lisp evaluation.
+;; If you want to create a file, visit that file with C-x C-f,
+;; then enter the text in that file's own buffer.
+
+dilbert
+garfield
+Non Sequitor
+Bob the Angry Flower
+Maakies
+Red Meat
+peanuts
+winnie the pooh
+This Modern World
+Thinking Ape Blues
+Tom the Dancing Bug
+Bad Reporter
+Zahra's Paradise
+death day
+guilded age
+drive the scifi comic
+the oatmeal
+subnormality
+bruno
+faux pas
+nukees 1
+goats 1
+roomies 1
+its walky 1
+phd comics
+user friendly
+dharma the cat
+you damn kid
+pokey the penguin
+pvp
+nevernever
+pc weenies
+general protection fault 1
+penny arcade - on wiki
+boy on a stick and slither
+irritability 1
+college roomies from hell 1
+Superosity
+Elf Life
+Sheldon 1
+Triangle and Robert 1
+Avalon
+Real Life 1
+It's Walky! 1
+Dorothy Gambrell
+Stealth
+Sinfest
+Bob and George
+Death to the Extremist
+Diesel Sweeties 1
+High Moon
+The Phoenix Requiem
+Grey Legacy
+Masque of the Red Death
+MS Paint Adventures
+A.D.: New Orleans After the Deluge
+The Zombie Hunters
+Multiplex 1
+super siblings 
+questionable content 1
+the order of the stick - on wiki
+freak angels - transcripts at bottom
+dinosaur comics - http://www.qwantz.com/everywordindinosaurcomicsOHGOD.xml
+https://www.ubersoft.net/comic/hd/1996/04/megasoft-suffers-cruelly-unscrupulous-villians

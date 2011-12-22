@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/dsiutils-1.0.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/fastutil-5.1.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/httpclient-4.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/httpcore-4.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/je-4.0.71.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-dependencies-lib/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/Downloads/jsoup-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/nehal/workspace/Java-Crawler/crawler4j-2.6.1/crawler4j-2.6.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
