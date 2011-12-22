@@ -24,19 +24,18 @@ class hcc:
       acquired using self.call callback. It doesn't compute the 
       matrix at once, but does it when the value requires computation.
   '''
-  def __init__(self, callback, v_ft, v_in, v_doc, TreeDraw):
+  def __init__(self, callback, v_series, v_docs, TreeDraw):
     '''
       init function for the class.
       v_ft    : corpus-wide feature vector.
       v_in    : instance-wide feature vector.
     '''
-    self.v_ft   = v_ft
-    self.v_in   = v_in
-    self.call   = callback
-    self.v_doc  = v_doc
-    self.eteTree = None
+    self.v_series = v_series
+    self.v_docs   = v_docs
+    self.call     = callback
+    self.eteTree  = None
     self.instcount = 0
-    self.scount = 0
+    self.scount   = 0
 
   def compute_centroid(self, cluster):
     '''
@@ -47,8 +46,8 @@ class hcc:
     '''
     mu  = 0.0
     for n in cluster:
-      mu  += self.call(self.v_ft, self.v_in, n[0], n[1])
-    return mu 
+      mu  += self.call(n[0], n[1])
+    return mu/len(cluster) 
 
   def compute_ch(self, p, q):
     '''
@@ -59,7 +58,7 @@ class hcc:
     xs  = 0.0
     mu  = self.compute_centroid(p+q)
     for n in p+q:
-      xs  += pow(self.call(self.v_ft, self.v_in, n[0], n[1])-mu, 2)
+      xs  += pow(self.call(n[0], n[1])-mu, 2)
     return (1.0/float(2*(len(p)+len(q))))*xs
 
   def pickup_two_nodes(self, m):
@@ -129,7 +128,7 @@ class hcc:
     	t.set_style(nstyle)    
      return t 
   '''
-  def hcc_cluster(self, matrix=False):
+  def hcc_cluster(self):
     '''
       This function runs the clustering algorithm. The algorithm
       is described below:
@@ -156,43 +155,21 @@ class hcc:
       merged. We add up the level value to each document series
       pair in the corss-product of documentXseries for the new cluster.
     '''
-    v_ft  = self.v_ft
-    v_in  = self.v_in
-    v_doc = self.v_doc
-    m_ds  = {}
-    if matrix is True:
-      for r in v_in:
-        if m_ds.has_key(r) is False:
-          m_ds[r]   = {}
-        for c in set(v_doc.values()):
-          m_ds[r][c]= 0.0
-
+    v_series  = self.v_series
+    v_docs    = self.v_docs
+      
     #Create bottom layer of the cluster.
     #Bottom layer contains all the words and documents.
-    m       = [[(x,y)] for x in v_ft [0] for y in v_in]
+    m       = [[(x,y)] for x in v_series for y in v_docs]
     N       = len(m)
     cluster = [m]
-    l_val   = N
     for i in range(0,N-1):
-      if v_doc is None:
-        m   = copy(m)
+      print i, ' of ', N
+      m     = copy(m)
       p, q  = self.pickup_two_nodes(m)
       o     = self.merge(p, q)
       m.remove(p)
       m.remove(q)
       m.append(o)
-      if matrix is True:
-        n_val   = 0.0
-        series  = set()
-        for node in o:
-          series.add(v_doc[node[1]])
-        for node in o:
-          for s in series:
-            m_ds[node[1]][s]  += m_ds[node[1]][s] + l_val
-        l_val -= 1
-      else:
-        cluster.append(m)
-    if matrix is True:
-      return m_ds
-    else:
-      return cluster
+      cluster.append(m)
+    return cluster

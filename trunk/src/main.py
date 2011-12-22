@@ -187,16 +187,7 @@ class main:
     idf = log(float(v_ft [1])/(1.0+v_ft [0][w][1]))
     return tf*idf
 
-  def ds_cell(self, v_ft, v_in, doc, series):
-    '''
-      This function computes cell value for document
-      series clusering. It fetches these values from
-      self.ds matrix. The self.ds matrix is
-      [Num Of Documents]X[Number Of Series] matrix.
-      It is populated by init_ds_matrix() method.
-    '''
-    return self.m_ds[doc][series]
-
+  
   def run_cluster(self):
     '''
       Computes the main Feature Vector. Followinf variable are initialized.
@@ -252,15 +243,10 @@ class main:
   def create_models(self, reader_obj, series, args):
     reader_obj.connect()
     inst  = reader_obj.get_next_instance()
-    count = 1
-    text  = inst [2]
+    text  = ''
     while inst != None:
-      inst  = reader_obj.get_next_instance()
       text  += inst [2]
-      if count == 10:
-        break
-      else:
-        count += 1
+      inst  = reader_obj.get_next_instance()
     args [series] = self.m_mod.build_model(text)
 
   def create_rship_matrix(self, reader_obj, series, args):
@@ -271,19 +257,14 @@ class main:
       docment and series.
       The values for matrix cells are returned by the models.
     '''
-    args [series] = {}
     reader_obj.connect()
     inst  = reader_obj.get_next_instance()
-    count = 1
     text  = ''
     while inst != None:
       text  += inst [2]
-      args [series][inst[1]]  = self.m_mod.ppx(self.models[series], inst[2])
+      for s in self.models:
+        args [s][inst[1]]  = self.m_mod.ppx(self.models[s], inst[2])
       inst  = reader_obj.get_next_instance()
-      if count == 10:
-        break
-      else:
-        count += 1
 
   def launch_corpus_reader(self, callback, args):
     print 'Launching Readers.'
@@ -291,6 +272,16 @@ class main:
       object  = globals()[tup[0]]
       print 'Processing: ' + tup[0] + " Value: " + tup[1]
       callback(getattr(object,tup[0])(tup[1]), tup[1], args)
+  
+  def ds_cell(self, series, doc):
+    '''
+      This function computes cell value for document
+      series clusering. It fetches these values from
+      self.ds matrix. The self.ds matrix is
+      [Num Of Documents]X[Number Of Series] matrix.
+      It is populated by init_ds_matrix() method.
+    '''
+    return self.m_rship[series][doc]
 
   def run_cluster1(self):
     '''
@@ -301,10 +292,25 @@ class main:
       matrix of document and series.
       ext, we run the HCC algorithm to cluster these comics.
     '''
-    m_rship   = {}
-    self.launch_corpus_reader(self.create_models, self.models)
-    self.launch_corpus_reader(self.create_rship_matrix, m_rship)
-    print m_rship
+    cluster   = self.saver.load_it(CLUSTER_DS)
+    if cluster is None:
+      self.m_rship    = self.saver.load_it(RSP_MATRIX)
+      if self.m_rship is None:
+        self.launch_corpus_reader(self.create_models, self.models)
+        self.m_rship        = {}
+        for s in self.models:
+          self.m_rship [s]  = {}
+        self.launch_corpus_reader(self.create_rship_matrix, self.m_rship)
+        self.saver.save_it(self.m_rship, RSP_MATRIX)
+
+      #Generate v_series and v_docs vectors.
+      v_series  = self.m_rship.keys()
+      v_docs    = self.m_rship[self.m_rship.keys()[0]].keys()
+      
+      #Do word-document clustering. Use hcc class for that.
+      c       = hcc(self.ds_cell, v_series, v_docs, False)
+      cluster = c.hcc_cluster()
+      self.saver.save_it(cluster)
     
 if __name__ == '__main__':
   #Check if the project is running from correct directory.
@@ -319,7 +325,7 @@ if __name__ == '__main__':
     Or run the following command.
     $ ./main.py clean
   '''
-  cleanup = [FT_VECTOR, INST_VECTORS, STEM_LIST, CLUSTER_WD, CLUSTER_DS, COMIC_VECTORS]
+  cleanup = [FT_VECTOR, INST_VECTORS, STEM_LIST, CLUSTER_WD, CLUSTER_DS, COMIC_VECTORS, RSP_MATRIX, LANG_MODELS]
   if len(sys.argv) == 2 and sys.argv[1] == 'clean':
     for i in cleanup:
       if os.path.exists(i) is True:

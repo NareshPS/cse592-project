@@ -12,10 +12,12 @@ class model:
   def __init__(self):
     pass
   
+  def discount(self, fdist, bins):
+    return WittenBellProbDist(fdist, len(fdist)+1)
+
   def build_model(self, text):
     c = wordpunct_tokenize(text)
-    e = lambda fdist, bins: WittenBellProbDist(fdist, len(fdist)+1)
-    m = NgramModel(1, c, e)
+    m = NgramModel(1, c, self.discount)
     return m
 
   def ppx(self, m, text):
@@ -26,7 +28,10 @@ class model:
       m     : model
       text  : text
     '''
-    print 1/pow(m.entropy(text), 2.0)
+    c = wordpunct_tokenize(text)
+    if len(c) == 0:
+      return 0.0
+    return pow(2.0, m.entropy(c))
 
 if __name__ == '__main__':
   m   = model()
