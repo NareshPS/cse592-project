@@ -17,17 +17,17 @@ class generate_tree:
     t.set_style(nstyle)
     if len(tuples) == 1:
       t.name  = '(' + tuples[0][0]+ ',' + tuples[0][1] + ')'
-    t.name    = ""
+    else:
+      t.name    = ""
     return t
 
   def build_interm_nodes(self, cluster, l, l_nodes=None):
-    print l
     mergedNode      = [x for x in cluster[l-1] if x not in cluster[l]]
     candidateNodes  = [x for x in cluster[l] if x not in cluster[l-1]]
     n_nodes         = []
     for x in cluster[l]:
       if x in cluster[l-1]:
-        n_nodes.append(l_nodex [cluster[l-1].index(x))
+        n_nodes.append(l_nodes [cluster[l-1].index(x)])
       else:
         n_nodes.append(self.mktreeNode(x))
     for candidate in candidateNodes:
