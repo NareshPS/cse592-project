@@ -22,9 +22,14 @@ class generate_tree:
 
   def build_interm_nodes(self, cluster, l, l_nodes=None):
     print l
-    n_nodes         = [self.mktreeNode(x) for x in cluster[l]]
     mergedNode      = [x for x in cluster[l-1] if x not in cluster[l]]
     candidateNodes  = [x for x in cluster[l] if x not in cluster[l-1]]
+    n_nodes         = []
+    for x in cluster[l]:
+      if x in cluster[l-1]:
+        n_nodes.append(l_nodex [cluster[l-1].index(x))
+      else:
+        n_nodes.append(self.mktreeNode(x))
     for candidate in candidateNodes:
       l_nodes [cluster[l-1].index(mergedNode[0])].add_child(n_nodes[cluster[l].index(candidate)])
 
