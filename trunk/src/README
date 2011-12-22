@@ -13,10 +13,15 @@ Code Setup
 To run the code:
 $ main.py
 Before running, make sure comic files are present in ../comics directory.
-The code creates corpus-wide feature vector, instance-wide feature vector
-and a stop word list and stores them on disk. These vectors are
-created only during first run. For subsequent runs, it loads the 
-vectors from the disk. It saves computation time. If anything is 
+This code creates Hierarchial Co-clustering of web-comics.
+It reads the comics from the above directory and creates language models
+for each comic series. Then it get the probability of each comic from
+the models. This information is used to create a relationship matrix.
+The relationship matrix is a seriesXcomic(document) matrix. Once the matrix
+is constructed, we run HCC algorithm to co-cluster comics with their series.
+The cluster thus obtained is visualized using ETE package.
+Note, that whole processing is done only in first run. For subsequent runs, it loads the 
+state from the disk. It saves computation time. If anything is 
 changed in vector construction related code, run:
 $./main.py clean
 
