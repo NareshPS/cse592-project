@@ -10,6 +10,7 @@ from stopwords import stopwords
 from hcc import hcc
 from math import log
 from lang_model import model
+from generate_tree import generate_tree
 
 class main:
   def __init__(self):
@@ -237,8 +238,6 @@ class main:
       d   = hcc(self.ds_cell, (v_in, None), set(v_doc.values()), v_doc, True)
       c_ds = d.hcc_cluster(False)
       self.saver.save_it(c_ds, CLUSTER_DS)
-    #r = level[0]
-    #r[2].show() 
 
   def create_models(self, reader_obj, series, args):
     reader_obj.connect()
@@ -308,9 +307,14 @@ class main:
       v_docs    = self.m_rship[self.m_rship.keys()[0]].keys()
       
       #Do word-document clustering. Use hcc class for that.
-      c       = hcc(self.ds_cell, v_series, v_docs, False)
+      c       = hcc(self.ds_cell, v_series, v_docs)
       cluster = c.hcc_cluster()
       self.saver.save_it(cluster, CLUSTER_DS)
+    #Create Hierarchial Tree using ETE
+    cluster.reverse()
+    t     = generate_tree()
+    tree  = t.build_tree(cluster, 0)
+    tree.show()
     
 if __name__ == '__main__':
   #Check if the project is running from correct directory.

@@ -1,5 +1,4 @@
 from copy import copy
-#from ete2a1 import Tree ,TextFace,NodeStyle
 
 class hcc:
   '''
@@ -24,7 +23,7 @@ class hcc:
       acquired using self.call callback. It doesn't compute the 
       matrix at once, but does it when the value requires computation.
   '''
-  def __init__(self, callback, v_series, v_docs, TreeDraw):
+  def __init__(self, callback, v_series, v_docs):
     '''
       init function for the class.
       v_ft    : corpus-wide feature vector.
@@ -33,9 +32,6 @@ class hcc:
     self.v_series = v_series
     self.v_docs   = v_docs
     self.call     = callback
-    self.eteTree  = None
-    self.instcount = 0
-    self.scount   = 0
 
   def compute_centroid(self, cluster):
     '''
@@ -85,49 +81,8 @@ class hcc:
       The two components being, document part of cluster and
       term part of cluster.
     '''
-    '''
-    t = Tree()
-    nstyle = NodeStyle()
-    nstyle["shape"] = "sphere"
-    nstyle["size"] = 10
-    nstyle["fgcolor"] = "darkred"
-    # Gray dashed branch lines
-    nstyle["hz_line_type"] = 1
-    nstyle["hz_line_color"] = "#cccccc"
-    t.set_style(nstyle)    
-    t.add_child(p[2])
-    t.add_child(q[2])
-    t.name = p[2].name +","+ q[2].name
-    '''
     return p+q
 
-  '''
-  def mktreeNode(self,x,instace):
-     t = Tree();
-     if self.TreeDraw:
-	name = ""
-	if instace:
-		name = name + "D" + str(self.instcount)
-		self.instcount = self.instcount + 1
-	else:
-        	name = name + "S" + str(self.scount)
-	        self.scount = self.scount +1
-	t.name = name
-	t.add_face(TextFace(x),column=0,position ="branch-right")
-	if instace:
-		t.add_face(TextFace(self.v_doc[x]),column=0,position ="branch-right")
-	#t.support = x
-	nstyle = NodeStyle()
-	nstyle["shape"] = "sphere"
-	nstyle["size"] = 10
-	nstyle["fgcolor"] = "darkred"
-
-	# Gray dashed branch lines
-	nstyle["hz_line_type"] = 1
-	nstyle["hz_line_color"] = "#cccccc"
-    	t.set_style(nstyle)    
-     return t 
-  '''
   def hcc_cluster(self):
     '''
       This function runs the clustering algorithm. The algorithm
