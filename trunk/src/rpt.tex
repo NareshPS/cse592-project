@@ -24,21 +24,22 @@
   \texttt{mcsekhar,mail2naresh,nehal.bandi@gmail.com}}
 \date{\today}
 \maketitle
+\titlepage
 \tableofcontents
 \listoffigures
 \pagebreak
 
 \section{Abstract}
-In this Internet age, the comics that are available on the web have exploded. But there is no easy way for a user to find comics similar to what he is interested in. This motivates us to solve the problem of grouping together comics which are similar.
+In this Internet age, the number of comics available on the web have exploded. Avid comic readers do not have an easy way to find comics similar to what he/she is interested in. This motivates us to solve the problem of grouping together comics which are similar. We intend to achieve two goals. First, we should be able to tell user which comics in the same series are similar. Second, we should also be able to suggest new interesting comics.
 \section{Introduction}
 People have been using the medium of comics since a very long time. Comics were traditionally found only in newspapers and print material, for which people had to pay money. But in the present day, a number of people have started their own web based comic series. Another interesting fact is that some of the comics which are printed in newspapers are also available online. Hence, readers are looking more and more to the web for their comic needs. A user who is reading some comic, is naturally interested in finding out other similar comics. We decided to solve this problem by creating groups of similar comics together, as that will aid in future navigation and search.\\
 At a first glance, one might think of using image analysis for this. That approach might work with mixed results, if one only wanted similar comics within a series. But, it is neither easy nor promising when attempting to find similarities across various series. Because, images in comics are not standard across series, and are usually very simple and do not represent real world entities faithfully. Another approach is to mine blogs and use search engine results to get information about similarities of comics.\\
-Our approach is to use the information in the comic transcripts to find similarities. This is a suitable approach, because in most cases, the transcript contains not just the text of the comics, but also additional details describing the image, scene and setting too. Moreover, one doesn't have to do complex image analysis to understand what the comic is about. And in our opinion, its an easy and better way to understand and analyse the comic. Thus, the transcripts constitute our data samples. We can now do clustering on this data to find out groups of comics similar to each other. We can also use the comic series themselves as samples, and cluster them. Moreover, we decided to go one step ahead and do a hierarchical clustering, as that will allow to create coarse grained clusters too. Since, similarity about comic instances hints at similarity between the comic series they belong to and vice versa, we felt that simultaneously clustering series and instances, also called co-clustering, is a good way to solve the problem described earlier. Thus, the comic series and individual instances from all series constitute our data samples. The features needed will have to be generated from the transcripts of the comics. As we have those transcripts we can use natural language processing techniques to find relevant features and similarity measures. Using that information clusters can be created.\\
+Our approach is to use the information in the comic transcripts to find similarities. This is a suitable approach, because in most cases, the transcript contains not just the text of the comics, but also additional details describing the image, scene and setting too. Moreover, one doesn't have to do complex image analysis to understand what the comic is about. And in our opinion, its an easy and better way to understand and analyse the comic. Thus, the transcripts constitute our data samples. We can now do clustering on this data to find out groups of comics similar to each other. We can also use the comic series themselves as samples, and cluster them. Moreover, we decided to go one step ahead and do a hierarchical clustering, as that will allow to create coarse grained clusters too. Since, similarity about comic instances hints at similarity between the comic series they belong to and vice versa, we felt that simultaneously clustering series and instances, also called co-clustering, is a good way to solve the problem described earlier. Thus, the comic series and individual instances from all series constitute our data samples. The features needed will have to be generated from the transcripts of the comics. As we have those transcripts we can use natural language processing techniques to find relevant features and similarity measures. Using that information clusters can be created. The clusters would be useful to find similar comics, as well as browsing comics in general.\\
 
 Eckes et al, \cite{HCC2} have described an algorithm to do hierarchical co-clustering. A modification of this called \emph{HCC} is proposed in Jingxuan Li et al, \cite{HCC1}. We have modified this and used it in our project.
 
 \section{Dataset}
-To collect data for our project, we used a crawler, which downloads the HTML from a web page. We then automated extraction of the comic transcript from the HTML text. In this manner, we collected transcripts of some popular comics. The size and distribution of our dataset is as follows:
+To collect data for our project, we have written a crawler, which downloads the HTML from a web page. We pass it a list of comics series to download. The crawler then searches the web for all the available comic transcripts for that series. It parses them and stores on the disk. This way, we collected transcripts of a few popular comics. The size and distribution of our dataset is as follows:
 \begin{itemize}
 \item
   About 20528 documents from 9 comic series
@@ -70,7 +71,7 @@ To collect data for our project, we used a crawler, which downloads the HTML fro
 \end{itemize}
 
 \section{Hierarchical Co-clustering}
-We use the fact that information about documents from different series tells us about similarity between the series and vice versa. Document clustering affects series clustering while series clustering affects  document clustering.
+We use hierarchial co-clustering which utilizes mutual information between the series and the comics. Document clustering provides additional information for series clustering while series clustering supplements document clustering.
 Given two types of data objects $A=\{a_1,a_2,\ldots,a_n\}$ and $B=\{b_1,b_2,\ldots,b_m\}$ and a matrix $X$, such that $x_{ij} \in \mathbb{R}$ represents the relation between $a_i$ and $b_j$. We need to simultaneously cluster objects in $A$ and $B$, and create hierarchies out of those clusters.
 Here we describe a modification of the \emph{HCC} algorithm presented in \cite{HCC1}.
 We start off with singleton clusters containing a tuple, which is a pair of a single document and a single series. We then combine two nearest clusters in each iteration, until there is only one cluster. Thus, a dendrogram is generated, with the leaves being tuples containing a single document and a single series, and internal nodes containing a cluster of such tuples. At the root, we have all such tuples.
@@ -147,18 +148,26 @@ What we have done above is utilised the clusters of words and documents created 
 In this case, the rows of the relationship matrix $X$ are the documents and the columns are the series $S$. We use \emph{language models} in this method. Language models are a probabilistic way of describing a corpus of text. An \emph{ngram} is a sequence of $n$ words in a text. Viewing all documents from a series $s_i$ as a corpus, we create a \emph{ngram} language model(LM) $nLM_i$ from that corpus, where the $n$ in $nLM_i$ denotes how many \emph{ngrams} were used for creating that model. We do this for all series in our dataset, thus creating as many LMs as the number of series.\\\\
 The perplexity of a given text $t$ with respect to a language model $L$ is defined as $\sqrt[N]{\frac{1}{P(t)}}$ where $P(t)$ is the probability of $t$ with respect to the LM $L$ and $N$ is the number of words in $t$. Perplexity is a measure of how likely this text could have come from that LM. A high perplexity means that the LM was surprised by that text.
 For each document $d_i$, we calculate the perplexity of the document with respect to the LM $nLM_j$ created using the series $s_j$. Let $p_{ij}$ denote this value.
-Since perplexity denotes the inverse of the likelihood of the text with respect to a LM, we decided that $\frac{1}{perplexity}$ is a measure of how related a document is to a series. Thus, we store $\frac{1}{p_{ij}}$ as the value of $x_{ij}$ in the relationship matrix $X$.
+Since perplexity denotes the inverse of the likelihood of the text with respect to a LM, we decided that $\frac{1}{perplexity}$ is a measure of how related a document is to a series. Thus, we store $\frac{1}{p_{ij}}$ as the value of $x_{ij}$ in the relationship matrix $X$. \\
+We used NLTK \cite{nltk} for constructing these language models.
 
 \section{Results and Discussion}
-Below is part of a dendrogram that was generated when we ran our algorithm on 900 documents from 9 series.
 \begin{figure}[H]
-  \includegraphics[height=0.7\textheight,width=0.8\textwidth]{demo1.pdf}
+  \includegraphics[scale=0.4]{demo1.pdf}
   \caption{Dendrogram of hierarchical co-clustering using Bag of Words}
 \end{figure}
-We did observe that similar comics and series were grouped together. For example, instances from series $S6$ - \emph{College Roomies From Hell} were clustered with that series, and then grouped with $S4$ - \emph{XKCD}. This also reflects reality because they are in fact related to college life. We thus see a simultaneous clustering of comic series and instances.
+
+ \begin{figure}[H]
+   \includegraphics[scale=0.4]{DiffTree}
+   \includegraphics[scale=0.4]{SameTree}
+   \caption{Dendrogram of hierarchical co-clustering using 1-gram Language Model}
+ \end{figure}
+We have shown fragments of two dendrograms. The first one is from our Bag Of Words model which used the co-clustering information from word-docuemnt cluster to create document-series cluster. The results look promising. Our technique clustered most of the comics from same series together. This indicates that comics from the same series use similar writing style, words etc. We also noticed comics from different series were clustered together. For example, instances from series $S6$ - \emph{College Roomies From Hell} were clustered with that series, and then grouped with $S4$ - \emph{XKCD}. This also reflects reality because they are in fact related to college life. We thus see a simultaneous clustering of comic series and instances.\\\\
+The second figure shows two fragments of dendrogram generated by our second approach which used language models for each series. The first fragment shows comics from different series getting clustered together. These comics have some similarity. \emph{General Protection Fault} and \emph{XKCD} are related as they have mentions of software and other related information technology terms. Both \emph{College Roomies From Hell} and \emph{XKCD} are related to college life. Second fragment shows the comics of same series (XKCD) grouped together. We ran this algorithm on 900 documents from 9 series.\\\\
+In general, our results were satisfactory. We observed similar comics grouping together. We believe the suggestions of similar comics from this cluster would be sensisble and interesting. The success of our approach relies on the usage of similar words in different comic instances. Such similarity is quite strong in the comics from same series. However, it is not very strong across series. Still, the similarity of words is good enough to make interesting suggestions to readers. One additional advantage of hierarchial clustering is it allows users to browse the tree to look for interesting comics. Enabling users to be able to browse comics is a powerful feature which would help them to discover new content on the web.
 
 \section{Future Work}
-One area to explore is to use more sophisticated natural language processing techniques to obtain relationship between comic series and instances. Another improvement is that once these clusters are generated, if we wanted to add in new data, the entire process has to be redone. That turns out to be inefficient, because new data can be added frequently, as new comics are published almost every week. To solve this, we could use the current distribution of series and instances, as prior information and use sequential updating,  to determine into which cluster, new instances and series should be added to.
+One area to explore is to use more sophisticated natural language processing techniques to obtain relationship between comic series and instances. Another improvement is that once these clusters are generated, if we wanted to add in new data, the entire process has to be re-done. That turns out to be inefficient, because new data can be added frequently, as new comics are published almost every week. To solve this, we could use the current distribution of series and instances, as prior information and use sequential updating,  to determine into which cluster, new instances and series should be added to.
 
 \begin{thebibliography}{9}
 \bibitem{HCC1} Jingxuan Li et al, \emph{HCC: A Hierarchical Co-clustering Algorithm}
@@ -168,5 +177,6 @@ One area to explore is to use more sophisticated natural language processing tec
 \bibitem{xkcd} XKCD comics \url{http://xkcd.com}
 \bibitem{go} GoComics \url{http://gocomics.com/calvinandhobbes}
 \bibitem{stemmer} Porter Stemmer \url{http://tartarus.org/martin/PorterStemmer}
+\bibitem{nltk} NLTK \url{http://nltk.org}
 \end{thebibliography}
 \end{document}
